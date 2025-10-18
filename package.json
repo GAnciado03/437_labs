@@ -1,0 +1,21 @@
+{
+  "name": "437_labs",
+  "version": "1.0.0",
+  "description": "",
+  "main": "packages/proto/index.js",
+  "scripts": {
+    "start":"http-server -p 3000",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/GAnciado03/437_labs.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/GAnciado03/437_labs/issues"
+  },
+  "homepage": "https://github.com/GAnciado03/437_labs#readme"
+}
