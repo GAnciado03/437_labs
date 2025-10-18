@@ -8,20 +8,27 @@
 
         <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" rel="stylesheet">
 
+        <link rel="stylesheet" href="styles/reset.css">
         <link rel="stylesheet" href="styles/pages.css">
         <link rel="icon" type="image/x-icon" href="icons/favicon.ico">
     </head>
-    <h1>User Profile</h1>
     <body>
-        <svg class="icon" aria-hidden="true" style="width:120px;height:120px">
-            <use href="icons/icons.svg#user-default"></use>
-        </svg>
-        <p>Name: Glenn Anciado</p>
-        <p>Favorites:</p>
-        <ul>
-            <li><a href="player.html">Favorite Player</a></li>
-            <li><a href="game.html">Favorite Game</a></li>
-        </ul>
-        <a href="index.html">Back to Home</a>
+        <main class="container">
+            <h1>User Profile</h1>
+            <p>
+                <svg class="icon" aria-hidden="true" style="--icon-size: 96px; width: var(--icon-size); height: var(--icon-size)">
+                    <use href="icons/icons.svg#user-default"></use>
+                </svg>
+            </p>
+            <p>Name: Glenn Anciado</p>
+            <p>Favorites:</p>
+            <ul class="nav-list">
+                <li><svg class="icon" aria-hidden="true"><use href="icons/icons.svg#player-icon-default"></use></svg>
+                    <a href="player.html">Favorite Player</a></li>
+                <li><svg class="icon" aria-hidden="true"><use href="icons/icons.svg#icon-controller"></use></svg>
+                    <a href="game.html">Favorite Game</a></li>
+            </ul>
+            <p><a href="index.html">Back to Home</a></p>
+        </main>
     </body>
 </html>

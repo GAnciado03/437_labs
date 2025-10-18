@@ -33,6 +33,11 @@ h3 {
   font-size: clamp(1.25rem, 0.9rem + 1vw, 1.5rem);
 }
 
+.container > h1 {
+  text-align: center;
+  margin-bottom: var(--space-4);
+}
+
 a {
   color: var(--color-accent);
   text-decoration: none;
@@ -81,39 +86,72 @@ pre {
 }
 
 .container {
-    max-width: var(--content-max);
-    margin: 0 auto;
-    padding: var(--space-4);
+  max-width: var(--content-max);
+  margin: 0 auto;
+  padding: var(--space-4);
 }
 
-.cnav-list {
-    list-style: none;
-    margin: var(--space-3) 0 0;
-    padding: 0;
-    display: grid;
-    gap: var(--space-2);
+.nav-list {
+  list-style: none;
+  margin: var(--space-3) 0 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-2);
 }
 
 .nav-list li {
-    display: flex;
-    align-items:center;
-    gap: var(--space-2);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
 }
 
 .nav-list a {
-    color: var(--color-text);
-    font-weight: 600;
-    text-decoration: none;
-    padding: .25rem .25rem;
+  color: var(--color-text);
+  font-weight: 600;
+  text-decoration: none;
+  padding: 0.25rem 0.25rem;
 }
-.nav-list a:hover{
-    color: var(--color-accent);
+.nav-list a:hover {
+  color: var(--color-accent);
 }
 
 .icon {
-    width: 24px;
-    height: 24px;
-    fill:currentColor;
-    vertical-align: -0.15em;
-    flex: 0 0 auto;
+  width: 24px;
+  height: 24px;
+  fill: currentColor;
+  vertical-align: -0.15em;
+  flex: 0 0 auto;
+}
+
+:root {
+  --grid-cols: 12;
+  --grid-gap: var(--space-3);
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(var(--grid-cols), minmax(0, 1fr));
+  gap: var(--grid-gap);
+}
+.span-12 {
+  grid-column: span 12;
+}
+.span-6 {
+  grid-column: span 6;
+}
+.span-4 {
+  grid-column: span 4;
+}
+.span-3 {
+  grid-column: span 3;
+}
+
+@media (max-width: 900px) {
+  :root {
+    --grid-cols: 8;
+  }
+}
+@media (max-width: 600px) {
+  :root {
+    --grid-cols: 4;
+  }
 }
