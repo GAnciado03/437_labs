@@ -1,74 +1,119 @@
 @import url("tokens.css");
 
 body {
-    background: var(--color-bg);
-    color: var(--color-text);
-    font-family: "Inter", ui-sans-serif, system-ui, -apple-system,
-                 "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans",
-                 "Apple Color Emoji", "Segoe UI Emoji";
-    font-size: 1rem;
-    line-height: 1.6;
-    margin: 0;
-    padding: 0;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+    Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji",
+    "Segoe UI Emoji";
+  font-size: 1rem;
+  line-height: 1.6;
+  margin: 0;
+  padding: 0;
 }
-h1, h2, h3 {
-    color: var(--color-heading);
-    font-family: "Inter", ui-sans-serif, system-ui, -apple-system,
-                 "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans",
-                 "Apple Color Emoji", "Segoe UI Emoji";
-    line-height: 1.2;
-    letter-spacing: .25px;
-    margin: 0 0 .5rem;
+h1,
+h2,
+h3 {
+  color: var(--color-heading);
+  font-family: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+    Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji",
+    "Segoe UI Emoji";
+  line-height: 1.2;
+  letter-spacing: 0.25px;
+  margin: 0 0 0.5rem;
 }
 
-h1 {font-size: clamp(2rem, 1.2rem + 2.5vw, 3rem);}
-h2 {font-size: clamp(1.5rem, 1.rem + 1.8vw, 2.25rem);}
-h3 {font-size: clamp(1.25rem, .9rem + 1vw, 1.5rem);}
+h1 {
+  font-size: clamp(2rem, 1.2rem + 2.5vw, 3rem);
+}
+h2 {
+  font-size: clamp(1.5rem, 1rem + 1.8vw, 2.25rem);
+}
+h3 {
+  font-size: clamp(1.25rem, 0.9rem + 1vw, 1.5rem);
+}
 
 a {
-    color: var(--color-accent);
-    text-decoration: none;
-    font-weight: 600;
-    padding-inline: 1px;
+  color: var(--color-accent);
+  text-decoration: none;
+  font-weight: 600;
+  padding-inline: 1px;
 }
 
 a:hover {
-    text-decoration: underline;
+  text-decoration: underline;
 }
 
 p.lead {
-    font-size: clamp(1.05rem, .9rem + .6vw, 1.35rem);
-    opacity: .95;
+  font-size: clamp(1.05rem, 0.9rem + 0.6vw, 1.35rem);
+  opacity: 0.95;
 }
 
-.smallcaps{
-    font-variant-caps: all-small-caps;
-    letter-spacing: .6px;
+.smallcaps {
+  font-variant-caps: all-small-caps;
+  letter-spacing: 0.6px;
 }
 
 .mono {
-    font-family: "Source Code Pro", ui-monospace, SFMono-Regular, Menlo, Consolas,
-                 "Liberation Mono", monospace;
-    font-size: .95em;
+  font-family: "Source Code Pro", ui-monospace, SFMono-Regular, Menlo, Consolas,
+    "Liberation Mono", monospace;
+  font-size: 0.95em;
 }
 
-code, pre {font-family: "Source Code Pro", ui-monospace, SFMono-Regular, Menlo,
-            Consolas, "Liberation Mono", monospace;}
+code,
+pre {
+  font-family: "Source Code Pro", ui-monospace, SFMono-Regular, Menlo, Consolas,
+    "Liberation Mono", monospace;
+}
 
 pre {
-    padding: .75rem 1rem;
-    border-radius: 10px;
-    overflow: auto;
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  overflow: auto;
 }
 
-.material-symbols-roubnded {
-    font-variation-settings: "FILL" 0, "wght" 600, "GRAD" 0, "opsz" 24;
-    vertical-align: -.125em;
-    display: inline-block;
-    text-rendering: optimizeLegibility;
-    line-height: 1;
+.material-symbols-rounded {
+  font-variation-settings: "FILL" 0, "wght" 600, "GRAD" 0, "opsz" 24;
+  vertical-align: -0.125em;
+  display: inline-block;
+  text-rendering: optimizeLegibility;
+  line-height: 1;
 }
 
-.icon {font-size: 1.25em; margin-right: .35rem;}
-.icon-lg {font-size: 1.5em; margin-right: .5rem;}
-.icon-ineline{vertical-align: -0.15em;}
+.container {
+    max-width: var(--content-max);
+    margin: 0 auto;
+    padding: var(--space-4);
+}
+
+.cnav-list {
+    list-style: none;
+    margin: var(--space-3) 0 0;
+    padding: 0;
+    display: grid;
+    gap: var(--space-2);
+}
+
+.nav-list li {
+    display: flex;
+    align-items:center;
+    gap: var(--space-2);
+}
+
+.nav-list a {
+    color: var(--color-text);
+    font-weight: 600;
+    text-decoration: none;
+    padding: .25rem .25rem;
+}
+.nav-list a:hover{
+    color: var(--color-accent);
+}
+
+.icon {
+    width: 24px;
+    height: 24px;
+    fill:currentColor;
+    vertical-align: -0.15em;
+    flex: 0 0 auto;
+}
