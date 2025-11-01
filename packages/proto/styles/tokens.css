@@ -34,3 +34,22 @@
     /*Content Width*/
     --content-max:56rem;
 }
+
+/* Dark mode token overrides. Applied when <body> has class="dark" */
+.dark {
+    /*Backgrounds*/
+    --color-bg:#0b1220;
+    --color-surface:#111827;
+
+    /*Text*/
+    --color-text:#e5e7eb;
+    --color-muted:#9ca3af;
+    --color-heading:#f3f4f6;
+
+    /*Accent*/
+    --color-accent:#60a5fa;
+    --color-accent-contrast:#0b1220;
+
+    /*Borders*/
+    --color-border:#1f2937;
+}

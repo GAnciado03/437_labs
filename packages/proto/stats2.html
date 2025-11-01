@@ -11,15 +11,32 @@
         <link rel="stylesheet" href="styles/reset.css">
         <link rel="stylesheet" href="styles/pages.css">
         <link rel="icon" type="image/x-icon" href="icons/favicon.ico">
+        <script type="module" src="scripts/theme.js"></script>
+        <script type="module" src="scripts/user-button.js"></script>
+        <script type="module" src="components/stat-card.js"></script>
     </head>
     <body>
-        <h1>Player Stats</h1>
-        <p>Player: <a href="player2.html">Rookie</a></p>
-        <p>K/D/A: 8 / 4 / 5</p>
-        <p>Win Rate: 60%</p>
-        <p>Matches Played: <a href="match.html">View Matches</a></p>
-        <p>Associated Player: <a href="match.html">Rookie</a></p>
-        <p>Stats: <a href="stats2.html">View Match Stats</a></p>
-        <a href="index.html">Back to Home</a>
+        <main class="container">
+            <h1>Player Stats</h1>
+            <p>Player: <a href="player2.html">Rookie</a></p>
+
+            <section class="grid" style="margin-top: var(--space-3)">
+                <div class="span-4">
+                    <stat-card label="K/D/A" value="8 / 4 / 5" icon="insights" accent="#2563eb"></stat-card>
+                </div>
+                <div class="span-4">
+                    <stat-card label="Win Rate" value="60" unit="%" icon="trending_up" accent="#10b981"></stat-card>
+                </div>
+                <div class="span-4">
+                    <stat-card label="Matches Played" value="24" icon="confirmation_number" accent="#f59e0b"></stat-card>
+                </div>
+            </section>
+
+            <p style="margin-top: var(--space-3)">
+                <a href="match.html">View Matches</a>
+                ·
+                <a href="index.html">Back to Home</a>
+            </p>
+        </main>
     </body>
 </html>
