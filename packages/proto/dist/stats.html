@@ -9,36 +9,12 @@
         <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" rel="stylesheet">
 
         <link rel="icon" type="image/x-icon" href="/assets/favicon-Cb2dxQey.ico">
-      <script type="module" crossorigin src="/assets/stats-DqhOrHI9.js"></script>
-      <link rel="modulepreload" crossorigin href="/assets/user-button-Bdk5KUkV.js">
-      <link rel="modulepreload" crossorigin href="/assets/stat-card-slr5nvfv.js">
-      <link rel="stylesheet" crossorigin href="/assets/user-button-B7BdnW_5.css">
+      <script type="module" crossorigin src="/assets/stats-CiRedr7P.js"></script>
+      <link rel="modulepreload" crossorigin href="/assets/user-button-sjTj3YiV.js">
+      <link rel="modulepreload" crossorigin href="/assets/state-mzX8VpgM.js">
+      <link rel="stylesheet" crossorigin href="/assets/user-button-zY_jnpoo.css">
     </head>
     <body>
-        <main class="container">
-            <h1>Player Stats</h1>
-            <p>Player: <a href="player.html">Faker</a></p>
-
-            <section class="grid" style="margin-top: var(--space-3)">
-                <div class="span-4">
-                    <stat-card label="K/D/A" value="14 / 2 / 8" icon="insights" accent="#2563eb" clickable>
-                        <span slot="footer">Last 10 games</span>
-                    </stat-card>
-                </div>
-                <div class="span-4">
-                    <stat-card label="Win Rate" value="65" unit="%" icon="trending_up" accent="#10b981"></stat-card>
-                </div>
-                <div class="span-4">
-                    <stat-card label="Matches Played" value="42" icon="confirmation_number" accent="#f59e0b"></stat-card>
-                </div>
-            </section>
-
-            <p style="margin-top: var(--space-3)">
-                <a href="match.html">View Matches</a>
-                ·
-                <a href="index.html">Back to Home</a>
-            </p>
-
-        </main>
+        <player-stats src="/data/player-details.json"></player-stats>
     </body>
 </html>

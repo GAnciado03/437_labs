@@ -1,1 +1,0 @@
-import"./user-button-Bdk5KUkV.js";import{_ as e}from"./stat-card-slr5nvfv.js";(async()=>{if(!customElements.get("stat-card"))try{await e(()=>import("./stat-card-Bylm-AuN.js"),[])}catch{await e(()=>import("./stat-card-slr5nvfv.js").then(t=>t.s),[])}})();document.addEventListener("stat-card:activate",a=>{const{label:t,value:r}=a.detail||{};console.log("Stat activated:",t,r)});

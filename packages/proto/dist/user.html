@@ -1,41 +1,83 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="utf-8" />
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Source+Code+Pro:wght@400;600&display=swap" rel="stylesheet">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Source+Code+Pro:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
 
-        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" rel="stylesheet">
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded"
+      rel="stylesheet"
+    />
 
-        <link rel="icon" type="image/x-icon" href="/assets/favicon-Cb2dxQey.ico">
-      <script type="module" crossorigin src="/assets/user-button-Bdk5KUkV.js"></script>
-      <link rel="stylesheet" crossorigin href="/assets/user-button-B7BdnW_5.css">
-    </head>
-    <body>
-        <main class="container">
-            <h1>User Profile
-                <button type="button" class="mono" data-theme-button aria-pressed="false"
-                    onclick="document.dispatchEvent(new CustomEvent('theme-toggle', { bubbles: true }))"
-                    data-label-on="Dark: On" data-label-off="Dark: Off"
-                    style="margin-left: var(--space-3); font-weight:600; font-size:.95rem; padding:.25rem .5rem; border:1px solid var(--color-border); background:var(--color-surface); color: var(--color-text); border-radius: var(--radius-sm); position: relative; z-index: 2000; pointer-events: auto; display: inline-block;">
-                    Dark: Off
-                </button>
-            </h1>
-            <p>
-                <svg class="icon" aria-hidden="true" style="--icon-size: 96px; width: var(--icon-size); height: var(--icon-size)">
-                    <use href="/assets/icons-CHZcaDp7.svg#user-default"></use>
-                </svg>
-            </p>
-            <p>Name: Glenn Anciado</p>
-            <p>Favorites:</p>
-            <ul class="nav-list">
-                <li><svg class="icon" aria-hidden="true"><use href="/assets/icons-CHZcaDp7.svg#player-icon-default"></use></svg>
-                    <a href="player.html">Favorite Player</a></li>
-                <li><svg class="icon" aria-hidden="true"><use href="/assets/icons-CHZcaDp7.svg#icon-controller"></use></svg>
-                    <a href="game.html">Favorite Game</a></li>
-            </ul>
-            <p><a href="index.html">Back to Home</a></p>
-        </main>
-    </body>
+    <link rel="icon" type="image/x-icon" href="/assets/favicon-Cb2dxQey.ico" />
+    <script type="module" crossorigin src="/assets/user-button-sjTj3YiV.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/user-button-zY_jnpoo.css">
+  </head>
+  <body>
+    <main class="container">
+      <h1>
+        User Profile
+        <button
+          type="button"
+          class="mono"
+          data-theme-button
+          aria-pressed="false"
+          onclick="document.dispatchEvent(new CustomEvent('dark-toggle', { bubbles: true }))"
+          data-label-on="Dark: On"
+          data-label-off="Dark: Off"
+          style="
+            margin-left: var(--space-3);
+            font-weight: 600;
+            font-size: 0.95rem;
+            padding: 0.25rem 0.5rem;
+            border: 1px solid var(--color-border);
+            background: var(--color-surface);
+            color: var(--color-text);
+            border-radius: var(--radius-sm);
+            position: relative;
+            z-index: 2000;
+            pointer-events: auto;
+            display: inline-block;
+          "
+        >
+          Dark: Off
+        </button>
+      </h1>
+      <p>
+        <svg
+          class="icon"
+          aria-hidden="true"
+          style="
+            --icon-size: 96px;
+            width: var(--icon-size);
+            height: var(--icon-size);
+          "
+        >
+          <use href="/assets/icons-CHZcaDp7.svg#user-default"></use>
+        </svg>
+      </p>
+      <p>Name: Glenn Anciado</p>
+      <p>Favorites:</p>
+      <ul class="nav-list">
+        <li>
+          <svg class="icon" aria-hidden="true">
+            <use href="/assets/icons-CHZcaDp7.svg#player-icon-default"></use>
+          </svg>
+          <a href="player.html">Favorite Player</a>
+        </li>
+        <li>
+          <svg class="icon" aria-hidden="true">
+            <use href="/assets/icons-CHZcaDp7.svg#icon-controller"></use>
+          </svg>
+          <a href="game.html">Favorite Game</a>
+        </li>
+      </ul>
+      <p><a href="index.html">Back to Home</a></p>
+    </main>
+  </body>
 </html>

@@ -14,48 +14,15 @@
         <script type="module" src="scripts/theme.js"></script>
         <script type="module" src="scripts/user-button.js"></script>
         <script type="module">
-            // Try Lit+TS under Vite. Fallback to vanilla JS when served statically.
             (async () => {
                 if (customElements.get('stat-card')) return;
-                try {
-                    await import('/src/components/stat-card.ts');
-                } catch (err) {
-                    await import('./components/stat-card.js');
-                }
+                try { await import('/src/components/stat-card.ts'); }
+                catch { await import('./components/stat-card.js'); }
             })();
         </script>
+        <script type="module" src="/src/components/player-stats.ts"></script>
     </head>
     <body>
-        <main class="container">
-            <h1>Player Stats</h1>
-            <p>Player: <a href="player.html">Faker</a></p>
-
-            <section class="grid" style="margin-top: var(--space-3)">
-                <div class="span-4">
-                    <stat-card label="K/D/A" value="14 / 2 / 8" icon="insights" accent="#2563eb" clickable>
-                        <span slot="footer">Last 10 games</span>
-                    </stat-card>
-                </div>
-                <div class="span-4">
-                    <stat-card label="Win Rate" value="65" unit="%" icon="trending_up" accent="#10b981"></stat-card>
-                </div>
-                <div class="span-4">
-                    <stat-card label="Matches Played" value="42" icon="confirmation_number" accent="#f59e0b"></stat-card>
-                </div>
-            </section>
-
-            <p style="margin-top: var(--space-3)">
-                <a href="match.html">View Matches</a>
-                ·
-                <a href="index.html">Back to Home</a>
-            </p>
-
-            <script type="module">
-                document.addEventListener('stat-card:activate', (e) => {
-                    const { label, value } = e.detail || {};
-                    console.log('Stat activated:', label, value);
-                });
-            </script>
-        </main>
+        <player-stats src="/data/player-details.json"></player-stats>
     </body>
 </html>
