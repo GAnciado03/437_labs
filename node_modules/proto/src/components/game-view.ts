@@ -14,6 +14,11 @@ export class GameView extends LitElement {
     :host { display: block; }
     .muted { color: var(--color-muted,#666); }
     h1 { text-align: center; margin-bottom: var(--space-3, 1rem); }
+    .center-col {
+      max-width: 720px;
+      width: 100%;
+      margin: 0 auto;
+    }
     ul {
       list-style: none;
       margin: 0 auto; /* center list */
@@ -78,8 +83,10 @@ export class GameView extends LitElement {
         <a href="index.html">Back to Home</a>
       </p>
       <h1>Game: ${game.title}</h1>
-      <p>Genre: ${game.genre}</p>
-      <h2 style="margin-top: var(--space-3)">Teams</h2>
+      <div class="center-col">
+        <p>Genre: ${game.genre}</p>
+        <h2 style="margin-top: var(--space-3)">Teams</h2>
+      </div>
       <team-list src="${game.teamsSrc}"></team-list>
     `;
   }

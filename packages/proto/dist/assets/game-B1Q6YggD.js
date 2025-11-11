@@ -1,4 +1,4 @@
-import"./user-button-sjTj3YiV.js";import"./team-list-C6ChVnJ_.js";import{i as p,n as h,r as c,a as d,x as r,t as g}from"./state-BhiRui7X.js";var u=Object.defineProperty,f=Object.getOwnPropertyDescriptor,i=(e,t,o,n)=>{for(var s=n>1?void 0:n?f(t,o):t,l=e.length-1,m;l>=0;l--)(m=e[l])&&(s=(n?m(t,o,s):m(s))||s);return n&&s&&u(t,o,s),s};let a=class extends d{constructor(){super(...arguments),this.src="/data/games.json",this.id="",this.games=[],this.loading=!1,this.error=null}connectedCallback(){super.connectedCallback();const e=new URL(location.href).searchParams.get("id")||"";!this.id&&e&&(this.id=e)}willUpdate(e){e.has("src")&&this.fetchData()}async fetchData(){if(this.src){this.loading=!0,this.error=null;try{const e=await fetch(this.src);if(!e.ok)throw new Error(`HTTP ${e.status}`);const t=await e.json();this.games=Array.isArray(t)?t:[]}catch(e){this.error=String(e)}finally{this.loading=!1}}}renderGameList(){return this.games.length?r`
+import"./user-button-sjTj3YiV.js";import"./team-list-C6ChVnJ_.js";import{i as p,n as h,r as m,a as d,x as r,t as g}from"./state-BhiRui7X.js";var u=Object.defineProperty,f=Object.getOwnPropertyDescriptor,i=(e,t,o,n)=>{for(var s=n>1?void 0:n?f(t,o):t,l=e.length-1,c;l>=0;l--)(c=e[l])&&(s=(n?c(t,o,s):c(s))||s);return n&&s&&u(t,o,s),s};let a=class extends d{constructor(){super(...arguments),this.src="/data/games.json",this.id="",this.games=[],this.loading=!1,this.error=null}connectedCallback(){super.connectedCallback();const e=new URL(location.href).searchParams.get("id")||"";!this.id&&e&&(this.id=e)}willUpdate(e){e.has("src")&&this.fetchData()}async fetchData(){if(this.src){this.loading=!0,this.error=null;try{const e=await fetch(this.src);if(!e.ok)throw new Error(`HTTP ${e.status}`);const t=await e.json();this.games=Array.isArray(t)?t:[]}catch(e){this.error=String(e)}finally{this.loading=!1}}}renderGameList(){return this.games.length?r`
       <ul>
         ${this.games.map(e=>r`
           <li>
@@ -12,8 +12,10 @@ import"./user-button-sjTj3YiV.js";import"./team-list-C6ChVnJ_.js";import{i as p,
         <a href="index.html">Back to Home</a>
       </p>
       <h1>Game: ${e.title}</h1>
-      <p>Genre: ${e.genre}</p>
-      <h2 style="margin-top: var(--space-3)">Teams</h2>
+      <div class="center-col">
+        <p>Genre: ${e.genre}</p>
+        <h2 style="margin-top: var(--space-3)">Teams</h2>
+      </div>
       <team-list src="${e.teamsSrc}"></team-list>
     `}render(){if(this.loading)return r`<main class="container"><p class="muted">Loading…</p></main>`;if(this.error)return r`<main class="container"><p class="muted">Error: ${this.error}</p></main>`;const e=this.id?this.games.find(t=>t.id.toLowerCase()===this.id.toLowerCase()):void 0;return r`
       <main class="container">
@@ -27,6 +29,11 @@ import"./user-button-sjTj3YiV.js";import"./team-list-C6ChVnJ_.js";import{i as p,
     :host { display: block; }
     .muted { color: var(--color-muted,#666); }
     h1 { text-align: center; margin-bottom: var(--space-3, 1rem); }
+    .center-col {
+      max-width: 720px;
+      width: 100%;
+      margin: 0 auto;
+    }
     ul {
       list-style: none;
       margin: 0 auto; /* center list */
@@ -37,4 +44,4 @@ import"./user-button-sjTj3YiV.js";import"./team-list-C6ChVnJ_.js";import{i as p,
       width: 100%;
     }
     li { display: flex; align-items: center; gap: .5rem; }
-  `;i([h({type:String})],a.prototype,"src",2);i([h({type:String,reflect:!0})],a.prototype,"id",2);i([c()],a.prototype,"games",2);i([c()],a.prototype,"loading",2);i([c()],a.prototype,"error",2);a=i([g("game-view")],a);
+  `;i([h({type:String})],a.prototype,"src",2);i([h({type:String,reflect:!0})],a.prototype,"id",2);i([m()],a.prototype,"games",2);i([m()],a.prototype,"loading",2);i([m()],a.prototype,"error",2);a=i([g("game-view")],a);
