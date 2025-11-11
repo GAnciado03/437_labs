@@ -10,7 +10,8 @@ export default defineConfig({
   server: {
     port: 3000,
     proxy: {
-      '/api': 'http://localhost:4000'
+      '/api': 'http://localhost:4000',
+      '/auth': 'http://localhost:4000'
     }
   },
   preview: { port: 3000 },
@@ -18,6 +19,8 @@ export default defineConfig({
     rollupOptions: {
       input: {
         index: r('index.html'),
+        login: r('login.html'),
+        newuser: r('newuser.html'),
         game: r('game.html'),
         match: r('match.html'),
         player: r('player.html'),

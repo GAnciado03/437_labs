@@ -16,6 +16,25 @@ export class PlayerView extends LitElement {
     :host { display: block; }
     .muted { color: var(--color-muted,#666); }
     h1 { text-align: center; margin-bottom: var(--space-3, 1rem); }
+    .actions { display: flex; gap: .75rem; align-items: center; margin-bottom: var(--space-2); justify-content: center; }
+button.fav {
+  padding: .45rem .85rem;
+  border-radius: var(--radius-sm, 6px);
+  border: 1px solid var(--color-border, #e5e7eb);
+  background: var(--color-surface, #fff);
+  color: var(--color-text, #111);
+  font-weight: 600;
+  letter-spacing: .3px;
+  cursor: pointer;
+  transition: background .15s ease, color .15s ease, border-color .15s ease, filter .15s ease;
+}
+button.fav:hover { filter: brightness(0.98); }
+:host-context(body.dark) button.fav { color: #e5e7eb; }
+:host-context(body:not(.dark)) button.fav { color: #111; }
+button.fav.active { background: var(--color-accent); border-color: var(--color-accent); color: var(--color-accent-contrast); }
+:host-context(body.dark) button.fav.active { color: #fff; }
+:host-context(body:not(.dark)) button.fav.active { color: #111; }
+button.fav[disabled] { opacity: .6; cursor: not-allowed; }
   `;
 
   @property({ type: String }) src = '/data/player-details.json';
@@ -60,9 +79,39 @@ export class PlayerView extends LitElement {
     const p = this.player;
     const id = p.id;
     const achievements = p.achievements?.join(', ') || '—';
+    const authed = Boolean(localStorage.getItem('token'));
+    const favKey = 'favPlayers';
+    const localFavs: string[] = JSON.parse(localStorage.getItem(favKey) || '[]');
+    const isFav = localFavs.includes(id);
+    const toggleFav = async () => {
+      if (!authed) { location.href = 'login.html'; return; }
+      try {
+        const token = localStorage.getItem('token') || '';
+        // Load current server state
+        const meRes = await fetch('/api/me', { headers: { 'Authorization': `Bearer ${token}` } });
+        const me = meRes.ok ? await meRes.json() : { favPlayers: localFavs };
+        const favs: string[] = Array.isArray(me.favPlayers) ? me.favPlayers : localFavs;
+        const next = isFav ? favs.filter((x: string)=> x!==id) : [...new Set([...favs, id])];
+        // Save to server
+        await fetch('/api/me', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ favPlayers: next })
+        });
+        // Keep local in sync for quick UI feedback
+        localStorage.setItem(favKey, JSON.stringify(next));
+      } catch {}
+      this.requestUpdate();
+    };
     return html`
       <main>
         <h1>Player Profile</h1>
+        <div class="actions">
+<button class="fav ${isFav ? 'active' : ''}" @click=${toggleFav}>${isFav ? 'Favorited' : 'Favorite'}</button>
+        </div>
         <p>Player Name: <a href="stats.html?id=${id}">${p.name}</a></p>
         <p>Role: ${p.role}</p>
         <p>Team: <a href="team.html?id=${encodeURIComponent(p.team)}">${p.team}</a></p>
@@ -76,3 +125,8 @@ export class PlayerView extends LitElement {
 }
 
 declare global { interface HTMLElementTagNameMap { 'player-view': PlayerView } }
+
+
+
+
+

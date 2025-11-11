@@ -8,6 +8,7 @@ export class TeamView extends LitElement {
   static styles = css`
     :host { display: block; }
     .muted { color: var(--color-muted,#666); }
+    h1 { text-align: center; margin-bottom: var(--space-3, 1rem); }
     ul {
       list-style: none;
       margin: 0 auto; /* center the list */
@@ -18,6 +19,11 @@ export class TeamView extends LitElement {
       width: 100%;
     }
     li { padding: var(--space-2,.75rem); border: 1px solid var(--color-border,#e5e7eb); border-radius: var(--radius-md,10px); background: var(--color-surface,#fff); }
+    .actions { display: flex; gap: .75rem; align-items: center; justify-content: center; margin-bottom: var(--space-2); }
+    .meta, h2 { text-align: center; }
+    button.fav { padding: .4rem .7rem; border-radius: 8px; border: 1px solid var(--color-border,#e5e7eb); background: var(--color-surface,#fff); cursor: pointer; }
+    button.fav.active { background: var(--color-accent); color: var(--color-accent-contrast); border-color: var(--color-accent); }
+    button.fav[disabled] { opacity: .6; cursor: not-allowed; }
   `;
 
   @property({ type: String }) src = '/data/players.json';
@@ -83,21 +89,34 @@ export class TeamView extends LitElement {
     const team = this.id || (this.teamPlayers[0]?.team ?? 'Team');
     const prev = this.getPrevHref();
     const prevIsHome = this.isHomePath(prev);
+    const authed = Boolean(localStorage.getItem('token'));
+    const favKey = 'favTeams';
+    const favs = JSON.parse(localStorage.getItem(favKey) || '[]');
+    const isFav = favs.includes(team);
+    const toggleFav = () => {
+      if (!authed) { location.href = 'login.html'; return; }
+      const next = isFav ? favs.filter((x: string)=> x!==team) : [...favs, team];
+      localStorage.setItem(favKey, JSON.stringify(next));
+      this.requestUpdate();
+    };
     return html`
       <main class="container">
         <p style="margin: 0 0 var(--space-2);">
-          ${prev && !prevIsHome ? html`<a href="${prev}">Back</a> Â· ` : null}
+          ${prev && !prevIsHome ? html`<a href="${prev}">Back</a> · ` : null}
           <a href="index.html">Back to Home</a>
         </p>
         <h1>Team Profile</h1>
-        <p>Team Name: ${team}</p>
+        <div class="actions">
+          <button class="fav ${isFav ? 'active' : ''}" @click=${toggleFav}>${isFav ? 'Favorited' : 'Favorite'}</button>
+        </div>
+        <p class="meta">Team Name: ${team}</p>
         <h2 style="margin-top: var(--space-3)">Members</h2>
         ${this.teamPlayers.length === 0 ? html`<p class="muted">No members found.</p>` : html`
           <ul>
           ${this.teamPlayers.map(p => html`
             <li>
               <a href="player.html?id=${p.id}"><strong>${p.name}</strong></a> Â· ${p.role}
-              ${p.kda ? html`<div class="muted">KDA: ${p.kda}</div>` : null}
+              <a href="player.html?id=${p.id}"><strong>${p.name}</strong></a> · ${p.role}
             </li>
           `)}
           </ul>
@@ -108,3 +127,5 @@ export class TeamView extends LitElement {
 }
 
 declare global { interface HTMLElementTagNameMap { 'team-view': TeamView } }
+
+

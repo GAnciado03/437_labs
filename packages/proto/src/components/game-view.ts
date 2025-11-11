@@ -14,6 +14,7 @@ export class GameView extends LitElement {
     :host { display: block; }
     .muted { color: var(--color-muted,#666); }
     h1 { text-align: center; margin-bottom: var(--space-3, 1rem); }
+    p.top-links { display: none; }
     .center-col {
       max-width: 720px;
       width: 100%;
@@ -78,7 +79,7 @@ export class GameView extends LitElement {
 
   renderSelectedGame(game: Game) {
     return html`
-      <p style="margin: 0 0 var(--space-2);">
+      <p class="top-links" style="margin: 0 0 var(--space-2);">
         <a href="game.html">Back to Games</a> ·
         <a href="index.html">Back to Home</a>
       </p>
@@ -100,7 +101,6 @@ export class GameView extends LitElement {
         ${this.id && game
           ? this.renderSelectedGame(game)
           : html`
-              <p style="margin: 0 0 var(--space-2);"><a href="index.html">Back to Home</a></p>
               <h1>Games</h1>
               ${this.renderGameList()}
             `}

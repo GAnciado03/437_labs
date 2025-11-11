@@ -4,6 +4,8 @@ import { connect } from "./services/mongo";
 import { seedFromProtoData } from "./seed";
 import players from "./routes/players";
 import teams from "./routes/teams";
+import users from "./routes/users";
+import auth, { authenticateUser } from "./routes/auth";
 import { errorHandler } from "./middleware/error";
 
 const app = express();
@@ -20,8 +22,11 @@ app.get("/hello", (req: Request, res: Response) => {
 });
 
 // API routes
-app.use("/api/players", players);
-app.use("/api/teams", teams);
+app.use("/auth", auth);
+// Protect data APIs with JWT
+app.use("/api/players", authenticateUser, players);
+app.use("/api/teams", authenticateUser, teams);
+app.use("/api/me", authenticateUser, users);
 
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);

@@ -1,14 +1,30 @@
+function isAuthenticated() {
+  try {
+    return Boolean(localStorage.getItem("token"));
+  } catch (_) {
+    return false;
+  }
+}
+
 function insertUserButton() {
   const path = (location.pathname || "").toLowerCase();
-  if (path.endsWith("/user.html") || path.endsWith("user.html")) return;
+  // Hide on user page and home page
+  if (
+    path === "/" ||
+    path.endsWith("/index.html") ||
+    path.endsWith("index.html") ||
+    path.endsWith("/user.html") ||
+    path.endsWith("user.html")
+  ) return;
   if (document.querySelector("#floating-user-button")) return;
 
   const btn = document.createElement("a");
   btn.id = "floating-user-button";
-  btn.href = "user.html";
-  btn.setAttribute("aria-label", "User");
+  const authed = isAuthenticated();
+  btn.href = authed ? "user.html" : "login.html";
+  btn.setAttribute("aria-label", authed ? "User" : "Login");
   btn.className = "mono";
-  btn.textContent = "User";
+  btn.textContent = authed ? "User" : "Login";
 
   Object.assign(btn.style, {
     position: "fixed",

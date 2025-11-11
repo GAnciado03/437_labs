@@ -17,13 +17,21 @@
     <link rel="stylesheet" href="styles/reset.css" />
     <link rel="stylesheet" href="styles/pages.css" />
     <link rel="icon" type="image/x-icon" href="icons/favicon.ico" />
+    <style>
+      .home-list {
+        display: inline-block;
+        margin: 1rem auto 0;
+        text-align: left;
+      }
+      .home-list li { justify-content: flex-start; }
+    </style>
     <script type="module" src="scripts/theme.js"></script>
     <script type="module" src="scripts/user-button.js"></script>
   </head>
   <body>
-    <main class="container">
-      <h1>Welcome to the Esports Database</h1>
-      <ul class="nav-list">
+    <main class="container" style="text-align: center;">
+      <h1 style="text-align: center;">Welcome to the Esports Database</h1>
+      <ul class="nav-list home-list">
         <li>
           <svg class="icon" aria-hidden="true">
             <use href="icons/icons.svg#user-default"></use>
@@ -58,3 +66,4 @@
     </main>
   </body>
 </html>
+
