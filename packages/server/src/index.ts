@@ -4,10 +4,12 @@ import { connect } from "./services/mongo";
 import { seedFromProtoData } from "./seed";
 import players from "./routes/players";
 import teams from "./routes/teams";
+import { errorHandler } from "./middleware/error";
 
 const app = express();
 const port = process.env.PORT || 3000;
 const staticDir = process.env.STATIC || "public";
+console.log("Static dir:", staticDir);
 
 app.use(cors());
 app.use(express.json());
@@ -32,3 +34,6 @@ if (process.env.SEED === 'true') {
     console.log('Seeded from proto data')
   ).catch(() => {});
 }
+
+// Centralized error handler (keep last)
+app.use(errorHandler);

@@ -7,12 +7,21 @@ type Team = { id: string; name: string; region?: string };
 export class TeamList extends LitElement {
   static styles = css`
     :host { display: block; }
-    ul { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-2,.75rem); }
+    ul {
+      list-style: none;
+      margin: 0 auto; /* center the list */
+      padding: 0;
+      display: grid;
+      gap: var(--space-2,.75rem);
+      max-width: 720px;
+      width: 100%;
+    }
     li { display: flex; align-items: center; gap: .5rem; }
     .muted { color: var(--color-muted,#666); }
   `;
 
   @property({ type: String }) src = '/data/teams.json';
+  @property({ type: Boolean, attribute: 'hide-region' }) hideRegion = false;
   @state() private teams: Team[] = [];
   @state() private loading = false;
   @state() private error: string | null = null;
@@ -43,7 +52,7 @@ export class TeamList extends LitElement {
           <li>
             <svg class="icon" aria-hidden="true" style="width: 20px; height: 20px"><use href="icons/icons.svg#icon-team"></use></svg>
             <a href="team.html?id=${encodeURIComponent(t.id)}">${t.name}</a>
-            ${t.region ? html`<span class="muted">· ${t.region}</span>` : null}
+            ${!this.hideRegion && t.region ? html`<span class="muted">· ${t.region}</span>` : null}
           </li>
         `)}
       </ul>
@@ -52,4 +61,3 @@ export class TeamList extends LitElement {
 }
 
 declare global { interface HTMLElementTagNameMap { 'team-list': TeamList } }
-

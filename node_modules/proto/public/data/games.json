@@ -1,0 +1,15 @@
+[
+  {
+    "id": "lol",
+    "title": "League of Legends",
+    "genre": "MOBA",
+    "teamsSrc": "/data/teams.json"
+  },
+  {
+    "id": "valorant",
+    "title": "Valorant",
+    "genre": "FPS",
+    "teamsSrc": "/data/valorant-teams.json"
+  }
+]
+

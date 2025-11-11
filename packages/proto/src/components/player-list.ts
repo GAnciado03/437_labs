@@ -8,7 +8,15 @@ export class PlayerList extends LitElement {
   static styles = css`
     :host { display: block; }
     .muted { color: var(--color-muted,#666); }
-    ul { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-2,.75rem); }
+    ul {
+      list-style: none;
+      margin: 0 auto; /* center the list */
+      padding: 0;
+      display: grid;
+      gap: var(--space-2,.75rem);
+      max-width: 720px; /* cap width for nicer reading */
+      width: 100%;
+    }
     li { padding: var(--space-2,.75rem); border: 1px solid var(--color-border,#e5e7eb); border-radius: var(--radius-md,10px); background: var(--color-surface,#fff); }
     strong { color: var(--color-heading,#111); }
   `;

@@ -15,17 +15,13 @@
     />
 
     <link rel="icon" type="image/x-icon" href="/assets/favicon-Cb2dxQey.ico" />
-    <script type="module" crossorigin src="/assets/user-button-sjTj3YiV.js"></script>
-    <script type="module" crossorigin src="/assets/state-BhiRui7X.js"></script>
-    <script type="module" crossorigin src="/assets/team-list-b7V73TFP.js"></script>
+    <script type="module" crossorigin src="/assets/game-Dr4OJ7pw.js"></script>
+    <link rel="modulepreload" crossorigin href="/assets/user-button-sjTj3YiV.js">
+    <link rel="modulepreload" crossorigin href="/assets/state-BhiRui7X.js">
+    <link rel="modulepreload" crossorigin href="/assets/team-list-C6ChVnJ_.js">
     <link rel="stylesheet" crossorigin href="/assets/user-button-zY_jnpoo.css">
   </head>
   <body>
-    <h1>Game Information</h1>
-    <p>Title: League of Legends</p>
-    <p>Genre: MOBA</p>
-    <h2 style="margin-top: var(--space-3)">Teams</h2>
-    <team-list src="/data/teams.json"></team-list>
-    <a href="index.html">Back to Home</a>
+    <game-view src="/data/games.json"></game-view>
   </body>
 </html>

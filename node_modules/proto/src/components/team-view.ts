@@ -8,7 +8,15 @@ export class TeamView extends LitElement {
   static styles = css`
     :host { display: block; }
     .muted { color: var(--color-muted,#666); }
-    ul { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-2,.75rem); }
+    ul {
+      list-style: none;
+      margin: 0 auto; /* center the list */
+      padding: 0;
+      display: grid;
+      gap: var(--space-2,.75rem);
+      max-width: 720px;
+      width: 100%;
+    }
     li { padding: var(--space-2,.75rem); border: 1px solid var(--color-border,#e5e7eb); border-radius: var(--radius-md,10px); background: var(--color-surface,#fff); }
   `;
 
@@ -19,6 +27,24 @@ export class TeamView extends LitElement {
   @state() private teamPlayers: Player[] = [];
   @state() private loading = false;
   @state() private error: string | null = null;
+
+  private getPrevHref(): string | null {
+    try {
+      const ref = document.referrer;
+      if (!ref) return null;
+      const refUrl = new URL(ref);
+      if (refUrl.origin !== location.origin) return null;
+      const path = refUrl.pathname + refUrl.search + refUrl.hash;
+      return path || refUrl.pathname;
+    } catch {
+      return null;
+    }
+  }
+
+  private isHomePath(path: string | null): boolean {
+    if (!path) return false;
+    return path === '/' || path.endsWith('/index.html') || path === 'index.html' || path === '/index.html';
+  }
 
   connectedCallback(): void {
     super.connectedCallback();
@@ -55,11 +81,12 @@ export class TeamView extends LitElement {
     if (this.loading) return html`<main class="container"><p class="muted">Loading…</p></main>`;
     if (this.error) return html`<main class="container"><p class="muted">Error: ${this.error}</p></main>`;
     const team = this.id || (this.teamPlayers[0]?.team ?? 'Team');
+    const prev = this.getPrevHref();
+    const prevIsHome = this.isHomePath(prev);
     return html`
       <main class="container">
         <p style="margin: 0 0 var(--space-2);">
-          <a href="events.html">Events</a>
-          ·
+          ${prev && !prevIsHome ? html`<a href="${prev}">Back</a> · ` : null}
           <a href="index.html">Back to Home</a>
         </p>
         <h1>Team Profile</h1>
@@ -81,4 +108,3 @@ export class TeamView extends LitElement {
 }
 
 declare global { interface HTMLElementTagNameMap { 'team-view': TeamView } }
-

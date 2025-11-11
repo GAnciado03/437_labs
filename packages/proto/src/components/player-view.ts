@@ -15,6 +15,7 @@ export class PlayerView extends LitElement {
   static styles = css`
     :host { display: block; }
     .muted { color: var(--color-muted,#666); }
+    h1 { text-align: center; margin-bottom: var(--space-3, 1rem); }
   `;
 
   @property({ type: String }) src = '/data/player-details.json';
@@ -60,12 +61,7 @@ export class PlayerView extends LitElement {
     const id = p.id;
     const achievements = p.achievements?.join(', ') || '—';
     return html`
-      <main class="container">
-        <p style="margin: 0 0 var(--space-2);">
-          <a href="stats.html?id=${id}">View Stats</a>
-          ·
-          <a href="index.html">Back to Home</a>
-        </p>
+      <main>
         <h1>Player Profile</h1>
         <p>Player Name: <a href="stats.html?id=${id}">${p.name}</a></p>
         <p>Role: ${p.role}</p>

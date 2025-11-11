@@ -20,13 +20,9 @@
     <script type="module" src="scripts/theme.js"></script>
     <script type="module" src="scripts/user-button.js"></script>
     <script type="module" src="/src/components/team-list.ts"></script>
+    <script type="module" src="/src/components/game-view.ts"></script>
   </head>
   <body>
-    <h1>Game Information</h1>
-    <p>Title: League of Legends</p>
-    <p>Genre: MOBA</p>
-    <h2 style="margin-top: var(--space-3)">Teams</h2>
-    <team-list src="/data/teams.json"></team-list>
-    <a href="index.html">Back to Home</a>
+    <game-view src="/data/games.json"></game-view>
   </body>
 </html>
