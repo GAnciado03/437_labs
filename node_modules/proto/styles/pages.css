@@ -123,7 +123,6 @@ pre {
   flex: 0 0 auto;
 }
 
-/* Theme toggle button inherits palette */
 [data-theme-button] {
   color: var(--color-text);
 }

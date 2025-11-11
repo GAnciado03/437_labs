@@ -3,7 +3,6 @@ import { customElement, property } from 'lit/decorators.js';
 
 @customElement('stat-card')
 export class StatCard extends LitElement {
-  // Attributes / properties
   @property({ type: String, reflect: true }) label = '';
   @property({ type: String, reflect: true }) value = '';
   @property({ type: String, reflect: true }) unit: string | null = null;

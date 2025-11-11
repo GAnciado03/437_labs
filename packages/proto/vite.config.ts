@@ -1,12 +1,18 @@
 import { defineConfig } from 'vite';
-import { resolve } from 'path';
+import { resolve, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
+const __dirname = dirname(fileURLToPath(import.meta.url));
 const r = (p: string) => resolve(__dirname, p);
 
 export default defineConfig({
-  root: '.',
   appType: 'mpa',
-  server: { port: 3000 },
+  server: {
+    port: 3000,
+    proxy: {
+      '/api': 'http://localhost:4000'
+    }
+  },
   preview: { port: 3000 },
   build: {
     rollupOptions: {
