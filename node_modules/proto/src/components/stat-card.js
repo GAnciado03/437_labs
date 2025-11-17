@@ -1,5 +1,5 @@
 import { LitElement, html, unsafeCSS } from 'lit';
-import statCardStyles from '../styles/stat-card.css?inline';
+import statCardStyles from '../../styles/stat-card.css?inline';
 
 export class StatCard extends LitElement {
   static styles = unsafeCSS(statCardStyles);

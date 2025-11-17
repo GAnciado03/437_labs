@@ -1,5 +1,5 @@
 import { LitElement, html, unsafeCSS } from 'lit';
-import teamListStyles from '../styles/team-list.css?inline';
+import teamListStyles from '../../styles/team-list.css?inline';
 
 export class TeamList extends LitElement {
   static styles = unsafeCSS(teamListStyles);

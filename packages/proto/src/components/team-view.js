@@ -1,7 +1,7 @@
 import { LitElement, html, unsafeCSS } from 'lit';
 import './player-list.js';
 import { apiUrl } from '../utils/api.ts';
-import teamViewStyles from '../styles/team-view.css?inline';
+import teamViewStyles from '../../styles/team-view.css?inline';
 
 export class TeamView extends LitElement {
   static styles = unsafeCSS(teamViewStyles);

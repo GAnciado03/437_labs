@@ -1,5 +1,5 @@
 import { LitElement, html, unsafeCSS } from 'lit';
-import topNavStyles from '../styles/top-nav.css?inline';
+import topNavStyles from '../../styles/top-nav.css?inline';
 
 export class TopNav extends LitElement {
   static styles = unsafeCSS(topNavStyles);

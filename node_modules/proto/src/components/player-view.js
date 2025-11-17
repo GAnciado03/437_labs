@@ -1,6 +1,6 @@
 import { LitElement, html, unsafeCSS } from 'lit';
 import { apiUrl } from '../utils/api.ts';
-import playerViewStyles from '../styles/player-view.css?inline';
+import playerViewStyles from '../../styles/player-view.css?inline';
 
 export class PlayerView extends LitElement {
   static styles = unsafeCSS(playerViewStyles);

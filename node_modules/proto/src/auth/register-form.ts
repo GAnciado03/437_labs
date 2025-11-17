@@ -1,6 +1,6 @@
 import { LitElement, html, unsafeCSS } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
-import registerFormStyles from "../styles/register-form.css?inline";
+import registerFormStyles from "../../styles/register-form.css?inline";
 import { apiUrl } from "../utils/api.ts";
 
 @customElement("register-form")
