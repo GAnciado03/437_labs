@@ -1,0 +1,99 @@
+:host {
+  display: block;
+}
+.muted {
+  color: var(--color-muted, #666);
+}
+h1 {
+  text-align: center;
+  margin-bottom: var(--space-3, 1rem);
+}
+.actions {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  margin-bottom: var(--space-2);
+  justify-content: center;
+}
+.filter-panel {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: flex-end;
+  margin: var(--space-3) 0 var(--space-2);
+}
+.filter-panel label {
+  display: grid;
+  gap: 4px;
+  font-weight: 600;
+}
+.filter-panel select,
+.filter-panel input {
+  min-width: 180px;
+  padding: 0.4rem 0.6rem;
+  border-radius: var(--radius-sm, 6px);
+  border: 1px solid var(--color-border, #e5e7eb);
+  background: var(--color-surface, #fff);
+  color: var(--color-text, #111);
+}
+.filter-panel button {
+  padding: 0.35rem 0.7rem;
+  border-radius: var(--radius-sm, 6px);
+  border: 1px solid var(--color-border, #e5e7eb);
+  background: var(--color-surface, #fff);
+  cursor: pointer;
+}
+:host-context(body.dark) .filter-panel select,
+:host-context(body.dark) .filter-panel input,
+:host-context(body.dark) .filter-panel button {
+  background: var(--color-surface, #111827);
+  color: var(--color-text, #e5e7eb);
+  border-color: var(--color-border, #1f2937);
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+button.fav {
+  padding: 0.45rem 0.85rem;
+  border-radius: var(--radius-sm, 6px);
+  border: 1px solid var(--color-border, #e5e7eb);
+  background: var(--color-surface, #fff);
+  color: var(--color-text, #111);
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease,
+    filter 0.15s ease;
+}
+button.fav:hover {
+  filter: brightness(0.98);
+}
+:host-context(body.dark) button.fav {
+  color: #e5e7eb;
+}
+:host-context(body:not(.dark)) button.fav {
+  color: #111;
+}
+button.fav.active {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: var(--color-accent-contrast);
+}
+:host-context(body.dark) button.fav.active {
+  color: #fff;
+}
+:host-context(body:not(.dark)) button.fav.active {
+  color: #111;
+}
+button.fav[disabled] {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

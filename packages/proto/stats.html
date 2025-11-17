@@ -10,17 +10,18 @@
 
         <link rel="stylesheet" href="styles/reset.css">
         <link rel="stylesheet" href="styles/pages.css">
+        <link rel="stylesheet" href="styles/components.css">
         <link rel="icon" type="image/x-icon" href="icons/favicon.ico">
         <script type="module" src="scripts/theme.js"></script>
         <script type="module" src="scripts/user-button.js"></script>
         <script type="module">
             (async () => {
                 if (customElements.get('stat-card')) return;
-                try { await import('/src/components/stat-card.ts'); }
+                try { await import('/src/components/stat-card.js'); }
                 catch { await import('./components/stat-card.js'); }
             })();
         </script>
-        <script type="module" src="/src/components/player-stats.ts"></script>
+        <script type="module" src="/src/components/player-stats.js"></script>
     </head>
     <body>
         <player-stats src="/data/player-details.json"></player-stats>

@@ -1,0 +1,57 @@
+:host {
+  display: block;
+}
+.muted {
+  color: var(--color-muted, #666);
+}
+h1 {
+  text-align: center;
+  margin-bottom: var(--space-3, 1rem);
+}
+.meta,
+h2 {
+  text-align: center;
+}
+.actions {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: var(--space-2);
+}
+button.fav {
+  padding: 0.45rem 0.85rem;
+  border-radius: var(--radius-sm, 6px);
+  border: 1px solid var(--color-border, #e5e7eb);
+  background: var(--color-surface, #fff);
+  color: var(--color-text, #111);
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease,
+    filter 0.15s ease;
+}
+button.fav:hover {
+  filter: brightness(0.98);
+}
+:host-context(body.dark) button.fav {
+  color: #e5e7eb;
+}
+:host-context(body:not(.dark)) button.fav {
+  color: #111;
+}
+button.fav.active {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: var(--color-accent-contrast);
+}
+:host-context(body.dark) button.fav.active {
+  color: #fff;
+}
+:host-context(body:not(.dark)) button.fav.active {
+  color: #111;
+}
+button.fav[disabled] {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

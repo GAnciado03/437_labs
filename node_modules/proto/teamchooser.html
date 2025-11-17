@@ -9,10 +9,11 @@
 
     <link rel="stylesheet" href="styles/reset.css" />
     <link rel="stylesheet" href="styles/pages.css" />
+    <link rel="stylesheet" href="styles/components.css" />
     <link rel="icon" type="image/x-icon" href="icons/favicon.ico" />
     <script type="module" src="scripts/theme.js"></script>
     <script type="module" src="scripts/user-button.js"></script>
-    <script type="module" src="/src/components/team-list.ts"></script>
+    <script type="module" src="/src/components/team-list.js"></script>
     <style>
       .filter-bar {
         display: flex;
@@ -49,7 +50,7 @@
         <button id="btn-val" class="filter-btn mono">Valorant</button>
       </div>
       <section style="margin-top: var(--space-2)">
-        <team-list id="teamlist" src="/data/teams.json" hide-region></team-list>
+        <team-list id="teamlist" src="/data/teams.json" hide-region show-player-link></team-list>
       </section>
       <script type="module">
         const list = document.getElementById('teamlist');

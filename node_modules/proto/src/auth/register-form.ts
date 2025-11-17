@@ -1,19 +1,13 @@
-import { LitElement, html, css } from "lit";
+import { LitElement, html, unsafeCSS } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
+import registerFormStyles from "../styles/register-form.css?inline";
+import { apiUrl } from "../utils/api.ts";
 
 @customElement("register-form")
 export class RegisterFormElement extends LitElement {
-  static styles = css`
-    :host { display: block; }
-    form { display: grid; gap: .75rem; }
-    label { display: grid; gap: .25rem; }
-    input { padding: .5rem .6rem; border: 1px solid var(--color-border,#e5e7eb); border-radius: 8px; }
-    button { padding: .6rem 1rem; border-radius: 8px; border: none; background: var(--color-accent,#4f46e5); color: white; font-weight: 600; }
-    .row { display: grid; gap: .75rem; grid-template-columns: 1fr 1fr; }
-    .error { color: #b91c1c; }
-  `;
+  static styles = unsafeCSS(registerFormStyles);
 
-  @property({ type: String }) api = "/auth/register";
+  @property({ type: String }) api = apiUrl("/auth/register");
   @property({ type: String }) redirect = "/";
   @state() private error: string | null = null;
   @state() private formData: { first?: string; last?: string; username?: string; password?: string; confirm?: string } = {};
@@ -49,7 +43,7 @@ export class RegisterFormElement extends LitElement {
           const { first, last, username } = this.formData;
           localStorage.setItem('profile', JSON.stringify({ first, last, username }));
           // Persist profile server-side
-          fetch('/api/me', {
+          fetch(apiUrl('/api/me'), {
             method: 'PUT',
             headers: {
               'Content-Type': 'application/json',

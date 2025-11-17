@@ -129,10 +129,6 @@
           location.href = 'index.html';
         });
         // Ensure theme button toggles even when rendered dynamically
-        const themeBtn = el.querySelector('[data-theme-button]');
-        themeBtn?.addEventListener('click', () => {
-          document.body.dispatchEvent(new CustomEvent('theme-toggle', { bubbles: true }));
-        });
         }
         // If we didn’t render via async path yet, render immediately with local values
         if (!el.innerHTML) render();

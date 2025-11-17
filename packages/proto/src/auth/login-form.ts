@@ -1,18 +1,13 @@
-import { LitElement, html, css } from "lit";
+import { LitElement, html, unsafeCSS } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
+import loginFormStyles from "../styles/login-form.css?inline";
+import { apiUrl } from "../utils/api.ts";
 
 @customElement("login-form")
 export class LoginFormElement extends LitElement {
-  static styles = css`
-    :host { display: block; }
-    form { display: grid; gap: .75rem; }
-    label { display: grid; gap: .25rem; }
-    input { padding: .5rem .6rem; border: 1px solid var(--color-border,#e5e7eb); border-radius: 8px; }
-    button { padding: .6rem .9rem; border-radius: 8px; border: none; background: var(--color-accent,#4f46e5); color: white; font-weight: 600; }
-    .error { color: #b91c1c; }
-  `;
+  static styles = unsafeCSS(loginFormStyles);
 
-  @property({ type: String }) api = "/auth/login";
+  @property({ type: String }) api = apiUrl("/auth/login");
   @property({ type: String }) redirect = "/";
   @state() private error: string | null = null;
   @state() private formData: { username?: string; password?: string } = {};
@@ -56,7 +51,7 @@ export class LoginFormElement extends LitElement {
             localStorage.setItem('profile', JSON.stringify({ ...prof, username: this.formData.username }));
           }
           // Load server profile details (e.g., first/last) and cache locally
-          fetch('/api/me', { headers: { 'Authorization': `Bearer ${json.token}` } })
+          fetch(apiUrl('/api/me'), { headers: { 'Authorization': `Bearer ${json.token}` } })
             .then((r) => r.ok ? r.json() : null)
             .then((me) => {
               if (me) {

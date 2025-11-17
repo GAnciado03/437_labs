@@ -16,7 +16,7 @@
 
     <link rel="icon" type="image/x-icon" href="/assets/favicon-Cb2dxQey.ico" />
     <script type="module" crossorigin src="/assets/pages-rLHsPmH1.js"></script>
-    <script type="module" crossorigin src="/assets/user-button-ifhGABLi.js"></script>
+    <script type="module" crossorigin src="/assets/user-button-DaLNPRlq.js"></script>
     <link rel="stylesheet" crossorigin href="/assets/pages-zY_jnpoo.css">
   </head>
   <body>
@@ -128,10 +128,6 @@
           location.href = 'index.html';
         });
         // Ensure theme button toggles even when rendered dynamically
-        const themeBtn = el.querySelector('[data-theme-button]');
-        themeBtn?.addEventListener('click', () => {
-          document.body.dispatchEvent(new CustomEvent('theme-toggle', { bubbles: true }));
-        });
         }
         // If we didn’t render via async path yet, render immediately with local values
         if (!el.innerHTML) render();
