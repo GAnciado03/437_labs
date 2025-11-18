@@ -8,15 +8,94 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Source+Code+Pro:wght@400;600&display=swap"
       rel="stylesheet"
     />
+
     <link
       href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded"
       rel="stylesheet"
     />
+
     <link rel="icon" type="image/x-icon" href="/assets/favicon-Cb2dxQey.ico" />
-    <script type="module" crossorigin src="/assets/index-D9cHhNMv.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-P3ZFDkpR.css">
+    <style>
+      .home-panel {
+        text-align: center;
+        padding: var(--space-4, 1.5rem);
+      }
+      .home-list {
+        list-style: none;
+        padding: 0;
+        margin: var(--space-3, 1rem) auto 0;
+        display: grid;
+        gap: var(--space-2, .75rem);
+      }
+      .home-list li {
+        display: flex;
+        align-items: center;
+        gap: var(--space-2, .75rem);
+        justify-content: center;
+      }
+      .home-list a {
+        color: var(--color-text, #222);
+        font-weight: 600;
+        text-decoration: none;
+      }
+      .home-list a:hover {
+        color: var(--color-accent, #4f46e5);
+        text-decoration: underline;
+      }
+      .icon {
+        width: 24px;
+        height: 24px;
+      }
+    </style>
+    <script type="module" src="/scripts/theme.js"></script>
+    <script type="module" src="/scripts/user-button.js"></script>
+    <script type="module" crossorigin src="/assets/pages-Dks4VDsO.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/pages-Dfax6CRs.css">
   </head>
   <body>
-    <app-shell></app-shell>
+    <div class="page-shell">
+      <section class="page-layout">
+        <div class="page-side page-side--left"></div>
+        <div class="page-panel home-panel">
+          <div class="container" style="background:none;box-shadow:none;">
+            <h1>Esports Database</h1>
+            <ul class="home-list">
+              <li>
+                <svg class="icon" aria-hidden="true">
+                  <use href="/assets/icons-CHZcaDp7.svg#user-default"></use>
+                </svg>
+                <a href="user.html">User</a>
+              </li>
+              <li>
+                <svg class="icon" aria-hidden="true">
+                  <use href="/assets/icons-CHZcaDp7.svg#icon-controller"></use>
+                </svg>
+                <a href="game.html">Games</a>
+              </li>
+              <li>
+                <svg class="icon" aria-hidden="true">
+                  <use href="/assets/icons-CHZcaDp7.svg#player-icon-default"></use>
+                </svg>
+                <a href="player.html">Players</a>
+              </li>
+              <li>
+                <svg class="icon" aria-hidden="true">
+                  <use href="/assets/icons-CHZcaDp7.svg#icon-team"></use>
+                </svg>
+                <a href="teamchooser.html">Teams</a>
+              </li>
+              <li>
+                <svg class="icon" aria-hidden="true">
+                  <use href="/assets/icons-CHZcaDp7.svg#icon-event"></use>
+                </svg>
+                <a href="events.html">Events</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div class="page-side page-side--right"></div>
+      </section>
+    </div>
   </body>
 </html>
+

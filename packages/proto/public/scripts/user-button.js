@@ -8,13 +8,14 @@ function isAuthenticated() {
 
 function insertUserButton() {
   const path = (location.pathname || "").toLowerCase();
-  // Hide on user page and home page
   if (
     path === "/" ||
     path.endsWith("/index.html") ||
     path.endsWith("index.html") ||
     path.endsWith("/user.html") ||
-    path.endsWith("user.html")
+    path.endsWith("user.html") ||
+    path.endsWith("/login.html") ||
+    path.endsWith("login.html")
   ) return;
   if (document.querySelector("#floating-user-button")) return;
 
@@ -42,6 +43,11 @@ function insertUserButton() {
   });
 
   document.body.appendChild(btn);
+
+  // Bypass capture handlers so clicks work even when scripts intercept
+  btn.addEventListener("click", (event) => {
+    event.stopPropagation();
+  });
 }
 
 if (document.readyState === "loading") {

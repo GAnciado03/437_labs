@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Source+Code+Pro:wght@400;600&display=swap" rel="stylesheet">
+
+        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" rel="stylesheet">
+
+        <link rel="stylesheet" href="styles/reset.css">
+        <link rel="stylesheet" href="styles/pages.css">
+        <link rel="icon" type="image/x-icon" href="icons/favicon.ico">
+        <script type="module" src="/scripts/theme.js"></script>
+        <script type="module" src="/scripts/user-button.js"></script>
+        <script type="module">
+            (async () => {
+                if (customElements.get('stat-card')) return;
+                try { await import('/src/components/stat-card.js'); }
+                catch { await import('./components/stat-card.js'); }
+            })();
+        </script>
+        <script type="module" src="/src/components/player-stats.js"></script>
+    </head>
+    <body>
+        <div class="page-shell">
+          <section class="page-layout">
+            <div class="page-side page-side--left"></div>
+            <div class="page-panel">
+              <main class="container">
+                <player-stats src="/data/player-details.json"></player-stats>
+              </main>
+            </div>
+            <div class="page-side page-side--right"></div>
+          </section>
+        </div>
+    </body>
+</html>

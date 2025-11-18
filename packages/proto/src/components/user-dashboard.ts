@@ -3,19 +3,81 @@ import { apiUrl } from "../utils/api.ts";
 
 export class UserDashboard extends LitElement {
   static styles = css`
-    :host { display: block; }
-    .card { max-width: 900px; margin: 1rem auto; }
+    :host { display: block; color: var(--color-text, #111); }
+    .card {
+      max-width: 900px;
+      margin: var(--space-4, 1.5rem) auto;
+      padding: var(--space-4, 1.5rem);
+      background: var(--color-surface, #fff);
+      border-radius: var(--radius-lg, 14px);
+      box-shadow: var(--shadow-sm, 0 1px 2px rgba(0,0,0,.08));
+    }
+    .header-row {
+      margin: 0 0 var(--space-2);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: .75rem;
+    }
+    .card h1,
+    .card h2,
+    .card h3 {
+      color: var(--color-heading, #0f172a);
+      margin: 0 0 var(--space-2, .75rem);
+    }
+    .avatar {
+      text-align: center;
+      margin-top: var(--space-2);
+    }
+    .avatar svg {
+      width: 48px;
+      height: 48px;
+      color: var(--color-heading, #0f172a);
+    }
     .fav-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: .5rem;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--space-3, 1rem);
       max-width: 720px;
       margin: 0 auto;
     }
-    ul { list-style: none; padding: 0; margin: 0; }
-    li { display: flex; align-items: center; gap: .5rem; justify-content: center; }
-    li.muted { color: var(--color-muted,#666); }
-    button.mono { font-weight: 600; }
+    @media (max-width: 640px) {
+      .fav-grid { grid-template-columns: 1fr; }
+      .header-row { flex-direction: column; }
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: .35rem;
+    }
+    li {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      justify-content: flex-start;
+      font-weight: 600;
+    }
+    li.muted {
+      color: var(--color-muted,#666);
+      font-weight: 500;
+      justify-content: center;
+    }
+    li svg {
+      width: 20px;
+      height: 20px;
+      color: inherit;
+    }
+    button.mono {
+      font-weight: 600;
+      padding: .35rem .75rem;
+      border: 1px solid var(--color-border, #e5e7eb);
+      border-radius: var(--radius-sm, 6px);
+      background: var(--color-surface, #fff);
+      color: var(--color-text, #111);
+    }
   `;
 
   static properties = {
@@ -118,13 +180,13 @@ export class UserDashboard extends LitElement {
     location.href = "login.html";
   }
 
-  renderList(items: string[], link: (id: string) => string) {
+  renderList(items: string[], link: (id: string) => string, iconId: string) {
     if (!items.length) {
       return html`<li class="muted">None</li>`;
     }
     return items.map((id) => html`
       <li>
-        <svg class="icon" aria-hidden="true"><use href="icons/icons.svg#icon-team"></use></svg>
+        <svg class="icon" aria-hidden="true"><use href="icons/icons.svg#${iconId}"></use></svg>
         <a href=${link(id)}>${id}</a>
       </li>
     `);
@@ -186,7 +248,8 @@ export class UserDashboard extends LitElement {
             <ul>
               ${this.renderList(
                 this.favPlayers,
-                (id) => `stats.html?id=${encodeURIComponent(id)}`
+                (id) => `stats.html?id=${encodeURIComponent(id)}`,
+                "player-icon-default"
               )}
             </ul>
           </div>
@@ -195,7 +258,8 @@ export class UserDashboard extends LitElement {
             <ul>
               ${this.renderList(
                 this.favTeams,
-                (id) => `team.html?id=${encodeURIComponent(id)}`
+                (id) => `team.html?id=${encodeURIComponent(id)}`,
+                "icon-team"
               )}
             </ul>
           </div>

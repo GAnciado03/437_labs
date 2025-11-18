@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Source+Code+Pro:wght@400;600&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" rel="stylesheet" />
+
+    <link rel="stylesheet" href="styles/reset.css" />
+    <link rel="stylesheet" href="styles/pages.css" />
+    <link rel="icon" type="image/x-icon" href="icons/favicon.ico" />
+    <script type="module" src="/scripts/theme.js"></script>
+    <script type="module" src="/scripts/user-button.js"></script>
+    <script type="module" src="/src/components/team-list.js"></script>
+    <style>
+      .filter-bar {
+        display: flex;
+        gap: var(--space-2);
+        justify-content: center;
+        margin: var(--space-2) 0;
+      }
+      .filter-btn {
+        padding: .45rem .85rem;
+        border-radius: var(--radius-sm, 6px);
+        border: 1px solid var(--color-border, #e5e7eb);
+        background: var(--color-surface, #fff);
+        color: var(--color-text, #111);
+        font-weight: 600;
+        letter-spacing: .3px;
+        cursor: pointer;
+        transition: background .15s ease, color .15s ease, border-color .15s ease;
+      }
+      .filter-btn:hover { filter: brightness(0.98); }
+      .filter-btn.active {
+        background: var(--color-accent);
+        border-color: var(--color-accent);
+        color: var(--color-accent-contrast);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page-shell">
+      <section class="page-layout">
+        <div class="page-side page-side--left"></div>
+        <div class="page-panel">
+          <main class="container">
+            <p style="margin: 0 0 var(--space-2);"><a href="index.html">Back to Home</a></p>
+            <h1 style="text-align: center;">Choose a Team</h1>
+            <p class="muted" style="text-align: center;">Select a team to view its roster.</p>
+            <div class="filter-bar">
+              <button id="btn-lol" class="filter-btn active mono">League of Legends</button>
+              <button id="btn-val" class="filter-btn mono">Valorant</button>
+            </div>
+            <section style="margin-top: var(--space-2)">
+              <team-list id="teamlist" src="/data/teams.json" hide-region></team-list>
+            </section>
+          </main>
+          <script type="module">
+        const list = document.getElementById('teamlist');
+        const btnLol = document.getElementById('btn-lol');
+        const btnVal = document.getElementById('btn-val');
+        function setActive(which) {
+          btnLol?.classList.toggle('active', which === 'lol');
+          btnVal?.classList.toggle('active', which === 'val');
+        }
+        btnLol?.addEventListener('click', ()=>{
+          list?.setAttribute('src','/data/teams.json');
+          setActive('lol');
+        });
+        btnVal?.addEventListener('click', ()=>{
+          list?.setAttribute('src','/data/valorant-teams.json');
+          setActive('val');
+        });
+      </script>
+        </div>
+        <div class="page-side page-side--right"></div>
+      </section>
+    </div>
+  </body>
+ </html>
