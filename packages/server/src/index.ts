@@ -10,7 +10,9 @@ import auth, { authenticateUser } from "./routes/auth";
 import { errorHandler } from "./middleware/error";
 
 const app = express();
-const port = process.env.PORT || 3000;
+const port = Number(process.env.PORT || 3000);
+const host = process.env.HOST || "0.0.0.0";
+const publicUrl = process.env.PUBLIC_URL || `http://localhost:${port}`;
 const staticDir = process.env.STATIC || "public";
 const staticPath = resolve(staticDir);
 console.log("Static dir:", staticPath);
@@ -30,8 +32,8 @@ app.use("/api/players", authenticateUser, players);
 app.use("/api/teams", authenticateUser, teams);
 app.use("/api/me", authenticateUser, users);
 
-app.listen(port, () => {
-  console.log(`Server running at http://localhost:${port}`);
+app.listen(port, host, () => {
+  console.log(`Server running at ${publicUrl}`);
 });
 
 connect("437esportsdatabase");
