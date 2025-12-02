@@ -21,16 +21,23 @@ export async function seedFromProtoData() {
 
     // Upsert teams
     for (const t of teamsData) {
-      await TeamModel.updateOne({ id: t.id }, t, { upsert: true });
+      const payload = {
+        ...t,
+        game: t.game || 'League of Legends',
+      };
+      await TeamModel.updateOne({ id: t.id }, payload, { upsert: true });
     }
 
     // Upsert players (use details to include achievements/stats)
     for (const p of playersData) {
-      await PlayerModel.updateOne({ id: p.id }, p, { upsert: true });
+      const payload = {
+        ...p,
+        game: p.game || 'League of Legends',
+      };
+      await PlayerModel.updateOne({ id: p.id }, payload, { upsert: true });
     }
   } catch (e) {
     console.error('Seed failed:', e);
     throw e;
   }
 }
-

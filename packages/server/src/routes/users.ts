@@ -1,13 +1,16 @@
 import express, { Request, Response } from "express";
-import { UserModel } from "../models/user";
+import { User, UserModel } from "../models/user";
 
 const router = express.Router();
 
 // Helper to ensure a user record exists
-async function ensureUser(username: string) {
-  let user = await UserModel.findOne({ username }).lean();
+async function ensureUser(username: string): Promise<User> {
+  let user = await UserModel.findOne({ username });
   if (!user) {
-    user = (await UserModel.create({ username, favPlayers: [], favTeams: [] })).toObject();
+    user = await UserModel.create({ username, favPlayers: [], favTeams: [] });
+  }
+  if (!user) {
+    throw new Error("Unable to ensure user record");
   }
   return user;
 }
@@ -17,7 +20,8 @@ router.get("/", async (req: Request, res: Response) => {
   const username = (res.locals && res.locals.username) as string | undefined;
   if (!username) return res.status(401).end();
   try {
-    const user = await ensureUser(username);
+    const userDoc = await ensureUser(username);
+    const user = userDoc.toObject();
     res.json({
       username: user.username,
       first: user.first,
@@ -61,4 +65,3 @@ router.put("/", async (req: Request, res: Response) => {
 });
 
 export default router;
-

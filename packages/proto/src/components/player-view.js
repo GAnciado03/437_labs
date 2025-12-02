@@ -1,5 +1,5 @@
 import { LitElement, html, unsafeCSS } from 'lit';
-import { apiUrl } from '../utils/api.ts';
+import { apiUrl, apiFetch } from '../utils/api.ts';
 import playerViewStyles from '../../styles/player-view.css?inline';
 
 export class PlayerView extends LitElement {
@@ -15,12 +15,13 @@ export class PlayerView extends LitElement {
     filterValue: { state: true },
     gameOptions: { state: true },
     teamOptions: { state: true },
-    gameTeams: { state: true }
+    gameTeams: { state: true },
+    teamSearch: { state: true }
   };
 
   constructor() {
     super();
-    this.src = '/data/player-details.json';
+    this.src = '/api/players';
     this.id = '';
     this.player = undefined;
     this.loading = false;
@@ -30,6 +31,9 @@ export class PlayerView extends LitElement {
     this.gameOptions = [];
     this.teamOptions = [];
     this.gameTeams = {};
+    this.players = [];
+    this.teamSearch = '';
+    this.teamOptionsId = `team-options-${Math.random().toString(36).slice(2)}`;
   }
 
   connectedCallback() {
@@ -41,8 +45,8 @@ export class PlayerView extends LitElement {
     if (teamParam) {
       this.filterType = 'team';
       this.filterValue = teamParam;
+      this.teamSearch = teamParam;
     }
-    this.loadGameDirectory();
   }
 
   willUpdate(changed) {
@@ -51,20 +55,37 @@ export class PlayerView extends LitElement {
     }
   }
 
+  resolveSrc(value) {
+    if (!value) return '';
+    if (value.startsWith('http')) return value;
+    if (value.startsWith('/api/')) return apiUrl(value);
+    return value;
+  }
+
   async fetchData() {
     if (!this.src) return;
+    const useApi = this.src.startsWith('/api/');
+    const target = this.resolveSrc(this.src);
     this.loading = true;
     this.error = null;
     this.player = undefined;
     try {
-      const res = await fetch(this.src);
+      const res = await (useApi ? apiFetch(target) : fetch(target));
+      if (res.status === 401) {
+        throw new Error('Please log in to view live player data.');
+      }
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const list = await res.json();
+      const payload = await res.json();
+      const list = Array.isArray(payload)
+        ? payload
+        : payload
+          ? [payload]
+          : [];
+      this.players = list;
+      this.buildFilterOptions(list);
       const key = (this.id || '').toLowerCase();
-      const found = Array.isArray(list)
-        ? list.find(p => (p.id || '').toLowerCase() === key)
-        : undefined;
-      this.player = found || (Array.isArray(list) ? list[0] : undefined);
+      const found = list.find(p => (p.id || '').toLowerCase() === key);
+      this.player = found || list[0];
     } catch (err) {
       this.error = String(err);
     } finally {
@@ -72,65 +93,69 @@ export class PlayerView extends LitElement {
     }
   }
 
-  async loadGameDirectory() {
-    try {
-      const gamesRes = await fetch('/data/games.json');
-      if (!gamesRes.ok) throw new Error(`HTTP ${gamesRes.status}`);
-      const games = await gamesRes.json();
-      this.gameOptions = Array.isArray(games)
-        ? games.map(g => ({ id: g.id, title: g.title, teamsSrc: g.teamsSrc }))
-        : [];
+  buildFilterOptions(list) {
+    const teamMap = new Map();
+    const gameMap = new Map();
+    const lookup = {};
+    list.forEach(p => {
+      const teamName = (p.team || '').trim();
+      if (teamName) {
+        const key = teamName.toLowerCase();
+        if (!teamMap.has(key)) teamMap.set(key, { id: teamName, label: teamName });
+        const gameName = (p.game || '').trim() || 'Valorant';
+        lookup[key] = gameName;
+        const gameKey = gameName.toLowerCase();
+        if (!gameMap.has(gameKey)) gameMap.set(gameKey, { id: gameName, title: gameName });
+      }
+    });
+    this.teamOptions = Array.from(teamMap.values()).sort((a, b) =>
+      a.label.localeCompare(b.label, undefined, { sensitivity: 'base' })
+    );
+    this.gameOptions = Array.from(gameMap.values()).sort((a, b) =>
+      a.title.localeCompare(b.title, undefined, { sensitivity: 'base' })
+    );
+    this.gameTeams = lookup;
+  }
 
-      const map = {};
-      const optionKeys = new Set();
-      const teamOptions = [];
+  getFilteredTeamOptions() {
+    const q = this.teamSearch.trim().toLowerCase();
+    if (!q) return this.teamOptions;
+    return this.teamOptions.filter(opt =>
+      opt.label?.toLowerCase().includes(q) || opt.id?.toLowerCase().includes(q)
+    );
+  }
 
-      const addOption = (value, label) => {
-        const val = (value || label || '').trim();
-        if (!val) return;
-        const key = val.toLowerCase();
-        if (optionKeys.has(key)) return;
-        optionKeys.add(key);
-        teamOptions.push({ id: val, label: label || val });
-      };
-
-      const addMap = (value, gameId) => {
-        const key = (value || '').trim().toLowerCase();
-        if (!key || !gameId) return;
-        map[key] = gameId;
-      };
-
-      await Promise.all(
-        (this.gameOptions || []).map(async game => {
-          try {
-            const teamsRes = await fetch(game.teamsSrc);
-            if (!teamsRes.ok) return;
-            const teams = await teamsRes.json();
-            (teams || []).forEach(team => {
-              addMap(team.id, game.id);
-              addMap(team.name, game.id);
-              addOption(team.id, team.name || team.id);
-              if (team.name) addOption(team.name, team.name);
-            });
-          } catch {
-            /* ignore */
-          }
-        })
-      );
-
-      this.teamOptions = teamOptions.sort((a, b) =>
-        a.label.localeCompare(b.label, undefined, { sensitivity: 'base' })
-      );
-      this.gameTeams = map;
-    } catch {
-      /* ignore */
+  handleTeamSearchChange(event) {
+    const value = event.target.value || '';
+    this.teamSearch = value;
+    if (!value) {
+      this.filterValue = '';
+      return;
     }
+    const match = this.teamOptions.find(
+      opt => opt.id.toLowerCase() === value.toLowerCase() || opt.label?.toLowerCase() === value.toLowerCase()
+    );
+    if (match) {
+      this.filterValue = match.id;
+    }
+  }
+
+  handleTeamSelectChange(event) {
+    const value = event.target.value || '';
+    this.filterValue = value;
+    this.teamSearch = value;
   }
 
   handleFilterTypeChange(event) {
     const next = event.target.value;
     this.filterType = next;
-    if (next === 'all') this.filterValue = '';
+    if (next === 'all') {
+      this.filterValue = '';
+      this.teamSearch = '';
+    }
+    if (next === 'team') {
+      this.teamSearch = this.filterValue;
+    }
   }
 
   handleFilterValueChange(event) {
@@ -160,15 +185,36 @@ export class PlayerView extends LitElement {
       `;
     }
     if (this.filterType === 'team') {
+      const listId = this.teamOptionsId;
+      const filteredTeams = this.getFilteredTeamOptions();
       return html`
-        <label class="filter-field">
+        <label class="filter-field team-filter">
           <span class="sr-only">Team</span>
-          <select .value=${this.filterValue} @change=${this.handleFilterValueChange}>
-            <option value="">Select team</option>
-            ${this.teamOptions.map(opt => html`
-              <option value=${opt.id}>${opt.label}</option>
-            `)}
-          </select>
+          <div class="team-filter-row">
+            <select
+              class="team-select"
+              .value=${this.filterValue}
+              @change=${this.handleTeamSelectChange}
+            >
+              <option value="">Select team</option>
+              ${filteredTeams.map(opt => html`
+                <option value=${opt.id}>${opt.label}</option>
+              `)}
+            </select>
+            <input
+              type="text"
+              class="team-search combo-input"
+              placeholder="Search team"
+              list=${listId}
+              .value=${this.teamSearch}
+              @input=${this.handleTeamSearchChange}
+            />
+            <datalist id=${listId}>
+              ${this.teamOptions.map(opt => html`
+                <option value=${opt.id}>${opt.label}</option>
+              `)}
+            </datalist>
+          </div>
         </label>
       `;
     }
@@ -189,7 +235,7 @@ export class PlayerView extends LitElement {
   }
 
   render() {
-    if (this.loading) return html`<p class="muted">Loading…</p>`;
+    if (this.loading) return html`<p class="muted">Loading...</p>`;
     if (this.error) return html`<p class="muted">Error: ${this.error}</p>`;
     if (!this.player) return html`<p class="muted">No player found.</p>`;
     const p = this.player;
@@ -243,6 +289,7 @@ export class PlayerView extends LitElement {
         </div>
         <p>Player: <a href="stats.html?id=${id}">${p.name}</a></p>
         <p>Team: <a href="team.html?id=${encodeURIComponent(p.team)}">${p.team}</a></p>
+        <p>Game: ${p.game || 'Valorant'}</p>
         <section class="filter-panel">
           <label>
             Filter
@@ -269,7 +316,7 @@ export class PlayerView extends LitElement {
         </p>
 
         <player-list
-          src="/data/players.json"
+          src="/api/players"
           .gameTeams=${this.gameTeams}
           .filterName=${filterName}
           .filterTeam=${filterTeam}

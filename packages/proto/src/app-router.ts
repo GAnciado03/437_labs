@@ -49,7 +49,7 @@ const routes: Route[] = [
       </main>
     `
   },
-  { path: "/game.html", view: () => html`<main class="container"><top-nav home="index.html"></top-nav><game-view src="/data/games.json"></game-view></main>` },
+  { path: "/game.html", view: () => html`<main class="container"><top-nav home="index.html"></top-nav><game-view></game-view></main>` },
   { path: "/player.html", view: () => html`<main class="container"><player-view></player-view></main>` },
   { path: "/stats.html", view: () => html`<main class="container"><player-stats></player-stats></main>` },
   { path: "/team.html", view: () => html`<main class="container"><team-view></team-view></main>` },

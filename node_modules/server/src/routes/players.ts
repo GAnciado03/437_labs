@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router, Request, Response } from 'express';
 import { PlayerModel } from '../models/player';
 import { asyncHandler } from '../middleware/error';
 import { requireFields, isEmptyObject } from '../utils/validate';
@@ -7,11 +7,12 @@ const router = Router();
 
 // GET /api/players
 // Supports filtering: ?team=T1&role=Mid&q=faker
-router.get('/', asyncHandler(async (req, res) => {
-  const { team, role, q } = req.query as { team?: string; role?: string; q?: string };
+router.get('/', asyncHandler(async (req: Request, res: Response) => {
+  const { team, role, q, game } = req.query as { team?: string; role?: string; q?: string; game?: string };
   const filter: any = {};
   if (team) filter.team = team;
   if (role) filter.role = role;
+  if (game) filter.game = game;
   if (q) filter.$or = [
     { name: new RegExp(String(q), 'i') },
     { id: new RegExp(String(q), 'i') }
@@ -21,14 +22,14 @@ router.get('/', asyncHandler(async (req, res) => {
 }));
 
 // GET /api/players/:id
-router.get('/:id', asyncHandler(async (req, res) => {
+router.get('/:id', asyncHandler(async (req: Request, res: Response) => {
   const p = await PlayerModel.findOne({ id: req.params.id }).lean();
   if (!p) return res.status(404).json({ error: 'Not found' });
   res.json(p);
 }));
 
 // POST /api/players
-router.post('/', asyncHandler(async (req, res) => {
+router.post('/', asyncHandler(async (req: Request, res: Response) => {
   const missing = requireFields(req.body, ['id', 'name', 'team', 'role']);
   if (missing.length) return res.status(400).json({ error: 'Missing fields', missing });
   const created = await PlayerModel.create(req.body);
@@ -36,7 +37,7 @@ router.post('/', asyncHandler(async (req, res) => {
 }));
 
 // PUT /api/players/:id
-router.put('/:id', asyncHandler(async (req, res) => {
+router.put('/:id', asyncHandler(async (req: Request, res: Response) => {
   if (isEmptyObject(req.body)) return res.status(400).json({ error: 'Empty update' });
   const updated = await PlayerModel.findOneAndUpdate(
     { id: req.params.id },
@@ -48,7 +49,7 @@ router.put('/:id', asyncHandler(async (req, res) => {
 }));
 
 // DELETE /api/players/:id
-router.delete('/:id', asyncHandler(async (req, res) => {
+router.delete('/:id', asyncHandler(async (req: Request, res: Response) => {
   const result = await PlayerModel.findOneAndDelete({ id: req.params.id });
   if (!result) return res.status(404).json({ error: 'Not found' });
   res.status(204).end();

@@ -1,4 +1,5 @@
 import { LitElement, html, unsafeCSS } from 'lit';
+import { apiFetch, apiUrl } from '../utils/api.ts';
 import playerStatsStyles from '../../styles/player-stats.css?inline';
 
 export class PlayerStats extends LitElement {
@@ -21,7 +22,7 @@ export class PlayerStats extends LitElement {
 
   constructor() {
     super();
-    this.src = '/data/player-details.json';
+    this.src = '/api/players';
     this.id = '';
     this.player = undefined;
     this.loading = false;
@@ -50,19 +51,30 @@ export class PlayerStats extends LitElement {
     this.error = null;
     this.player = undefined;
     try {
-      const res = await fetch(this.src);
+      const target = this.buildTarget();
+      const res = await apiFetch(target);
+      if (res.status === 401) throw new Error('Please log in to view stats.');
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const list = await res.json();
-      const key = (this.id || '').toLowerCase();
-      const found = Array.isArray(list)
-        ? list.find(p => (p.id || '').toLowerCase() === key)
-        : undefined;
-      this.player = found || (Array.isArray(list) ? list[0] : undefined);
+      const result = await res.json();
+      if (Array.isArray(result)) {
+        const key = (this.id || '').toLowerCase();
+        const found = result.find(p => (p.id || '').toLowerCase() === key);
+        this.player = found || result[0];
+      } else {
+        this.player = result;
+      }
     } catch (err) {
       this.error = String(err);
     } finally {
       this.loading = false;
     }
+  }
+
+  buildTarget() {
+    if (this.id) {
+      return apiUrl(`/api/players/${encodeURIComponent(this.id)}`);
+    }
+    return apiUrl('/api/players');
   }
 
   render() {

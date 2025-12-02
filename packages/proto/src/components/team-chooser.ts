@@ -1,9 +1,6 @@
 import { LitElement, html, css } from "lit";
 import "./team-list.js";
 
-const LOL_SRC = "/data/teams.json";
-const VAL_SRC = "/data/valorant-teams.json";
-
 export class TeamChooser extends LitElement {
   static styles = css`
     :host { display: block; }
@@ -34,29 +31,51 @@ export class TeamChooser extends LitElement {
   `;
 
   static properties = {
-    game: { type: String, reflect: true }
+    game: { type: String, reflect: true },
+    query: { type: String },
   };
 
-  game: string;
+  game: string | null;
+  query: string;
 
   constructor() {
     super();
-    this.game = "lol";
+    this.game = null;
+    this.query = '';
   }
 
-  select(game: string) {
-    if (this.game === game) return;
-    this.game = game;
+  select(game: string | null) {
+    this.game = this.game === game ? null : game;
+  }
+
+  updateQuery(event: Event) {
+    this.query = (event.target as HTMLInputElement).value ?? '';
   }
 
   render() {
-    const src = this.game === "val" ? VAL_SRC : LOL_SRC;
+    const gameName =
+      this.game === "val" ? "Valorant" :
+      this.game === "lol" ? "League of Legends" :
+      null;
     return html`
       <main class="container">
         <p style="margin: 0 0 var(--space-2);"><a href="index.html">Back to Home</a></p>
         <h1 style="text-align: center;">Choose a Team</h1>
         <p class="muted" style="text-align: center;">Select a team to view its roster.</p>
+        <div style="display:flex; justify-content:center; margin-bottom:var(--space-2);">
+          <input
+            type="text"
+            placeholder="Search team name"
+            value=${this.query}
+            @input=${this.updateQuery}
+            style="min-width:260px; padding:0.45rem 0.6rem; border-radius:var(--radius-sm,6px); border:1px solid var(--color-border,#e5e7eb);"
+          />
+        </div>
         <div class="filter-bar">
+          <button class="filter-btn mono ${this.game === null ? "active" : ""}"
+            @click=${() => this.select(null)}>
+            All Games
+          </button>
           <button class="filter-btn mono ${this.game === "lol" ? "active" : ""}"
             @click=${() => this.select("lol")}>
             League of Legends
@@ -67,7 +86,13 @@ export class TeamChooser extends LitElement {
           </button>
         </div>
         <section style="margin-top: var(--space-2)">
-          <team-list src=${src} hide-region show-player-link></team-list>
+          <team-list
+            src="/api/teams"
+            .game=${gameName ?? ''}
+            .limit=${1200}
+            .query=${this.query}
+            hide-region
+          ></team-list>
         </section>
       </main>
     `;

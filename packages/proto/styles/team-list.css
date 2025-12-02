@@ -26,8 +26,3 @@ li {
 .muted {
   color: var(--color-muted, #666);
 }
-.player-link {
-  color: inherit;
-  text-decoration: underline;
-  font-weight: 600;
-}

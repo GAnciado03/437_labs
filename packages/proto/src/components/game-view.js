@@ -1,11 +1,12 @@
 import { LitElement, html, unsafeCSS } from 'lit';
+import { apiFetch, apiUrl } from '../utils/api.ts';
+import './team-list.js';
 import gameViewStyles from '../../styles/game-view.css?inline';
 
 export class GameView extends LitElement {
   static styles = unsafeCSS(gameViewStyles);
 
   static properties = {
-    src: { type: String },
     id: { type: String, reflect: true },
     games: { state: true },
     loading: { state: true },
@@ -14,7 +15,6 @@ export class GameView extends LitElement {
 
   constructor() {
     super();
-    this.src = '/data/games.json';
     this.id = '';
     this.games = [];
     this.loading = false;
@@ -27,24 +27,41 @@ export class GameView extends LitElement {
     if (!this.id && urlId) this.id = urlId;
   }
 
-  willUpdate(changed) {
-    if (changed.has('src')) this.fetchData();
+  connectedCallback() {
+    super.connectedCallback();
+    const urlId = new URL(location.href).searchParams.get('id') || '';
+    if (!this.id && urlId) this.id = urlId;
+    this.fetchData();
   }
 
   async fetchData() {
-    if (!this.src) return;
     this.loading = true;
     this.error = null;
     try {
-      const res = await fetch(this.src);
+      const res = await apiFetch(apiUrl('/api/teams'));
+      if (res.status === 401) throw new Error('Please log in to view games.');
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const list = await res.json();
-      this.games = Array.isArray(list) ? list : [];
+      const teams = await res.json();
+      this.games = this.buildGames(Array.isArray(teams) ? teams : []);
     } catch (err) {
       this.error = String(err);
     } finally {
       this.loading = false;
     }
+  }
+
+  buildGames(teams) {
+    const map = new Map();
+    teams.forEach(team => {
+      const game = (team.game || 'Valorant').trim();
+      if (!map.has(game)) {
+        map.set(game, { id: game, title: game, teams: [] });
+      }
+      map.get(game).teams.push(team);
+    });
+    return Array.from(map.values()).sort((a, b) =>
+      a.title.localeCompare(b.title, undefined, { sensitivity: 'base' })
+    );
   }
 
   renderGameList() {
@@ -53,8 +70,8 @@ export class GameView extends LitElement {
       <ul>
         ${this.games.map(g => html`
           <li>
-            <a href="game.html?id=${g.id}"><strong>${g.title}</strong></a>
-            <span class="muted">· ${g.genre}</span>
+            <a href="game.html?id=${encodeURIComponent(g.id)}"><strong>${g.title}</strong></a>
+            <span class="muted">· Teams: ${g.teams.length}</span>
           </li>
         `)}
       </ul>
@@ -69,16 +86,16 @@ export class GameView extends LitElement {
       </p>
       <h1>Game: ${game.title}</h1>
       <div class="center-col">
-        <p>Genre: ${game.genre}</p>
+        <p>Teams competing in ${game.title}</p>
         <h2 style="margin-top: var(--space-3)">Teams</h2>
       </div>
-      <team-list src="${game.teamsSrc}" show-player-link></team-list>
+      <team-list src="/api/teams" .game=${game.title} show-player-link></team-list>
     `;
   }
 
   render() {
     if (this.loading) {
-      return html`<main class="container"><p class="muted">Loading…</p></main>`;
+      return html`<main class="container"><p class="muted">Loading...</p></main>`;
     }
     if (this.error) {
       return html`<main class="container"><p class="muted">Error: ${this.error}</p></main>`;

@@ -1,26 +1,22 @@
 import { LitElement, html, unsafeCSS } from 'lit';
 import './player-list.js';
-import { apiUrl } from '../utils/api.ts';
+import { apiFetch, apiUrl } from '../utils/api.ts';
 import teamViewStyles from '../../styles/team-view.css?inline';
 
 export class TeamView extends LitElement {
   static styles = unsafeCSS(teamViewStyles);
 
   static properties = {
-    src: { type: String },
     id: { type: String, reflect: true },
-    allPlayers: { state: true },
-    teamPlayers: { state: true },
+    teamData: { state: true },
     loading: { state: true },
     error: { state: true }
   };
 
   constructor() {
     super();
-    this.src = '/data/players.json';
     this.id = '';
-    this.allPlayers = [];
-    this.teamPlayers = [];
+    this.teamData = null;
     this.loading = false;
     this.error = null;
   }
@@ -50,18 +46,25 @@ export class TeamView extends LitElement {
   }
 
   willUpdate(changed) {
-    if (changed.has('src') || changed.has('id')) this.fetchData();
+    if (changed.has('id')) this.fetchTeam();
   }
 
-  async fetchData() {
+  async fetchTeam() {
+    if (!this.id) return;
     this.loading = true;
     this.error = null;
     try {
-      const res = await fetch(this.src);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
-      this.allPlayers = Array.isArray(data) ? data : [];
-      this.filterRoster();
+      const res = await apiFetch(apiUrl(`/api/teams/${encodeURIComponent(this.id)}`));
+      if (res.status === 401) {
+        throw new Error('Please log in to view teams.');
+      }
+      if (res.ok) {
+        this.teamData = await res.json();
+      } else if (res.status === 404) {
+        this.teamData = { id: this.id, name: this.id };
+      } else {
+        throw new Error(`HTTP ${res.status}`);
+      }
     } catch (err) {
       this.error = String(err);
     } finally {
@@ -69,21 +72,10 @@ export class TeamView extends LitElement {
     }
   }
 
-  filterRoster() {
-    const key = (this.id || '').toLowerCase();
-    if (!key) {
-      this.teamPlayers = [];
-      return;
-    }
-    this.teamPlayers = this.allPlayers.filter(
-      p => (p.team || '').toLowerCase() === key
-    );
-  }
-
   render() {
-    if (this.loading) return html`<main class="container"><p class="muted">Loading…</p></main>`;
-    if (this.error) return html`<main class="container"><p class="muted">Error: ${this.error}</p></main>`;
-    const team = this.id || (this.teamPlayers[0]?.team ?? 'Team');
+    if (this.loading && !this.teamData) return html`<main class="container"><p class="muted">Loading...</p></main>`;
+    if (this.error && !this.teamData) return html`<main class="container"><p class="muted">Error: ${this.error}</p></main>`;
+    const team = this.teamData?.name || this.id || 'Team';
     const prev = this.getPrevHref();
     const prevIsHome = this.isHomePath(prev);
     const authed = Boolean(localStorage.getItem('token'));
@@ -128,9 +120,11 @@ export class TeamView extends LitElement {
         </div>
         <p class="meta">Team Name: ${team}</p>
         <h2 style="margin-top: var(--space-3)">Players</h2>
-        ${this.teamPlayers.length === 0
-          ? html`<p class="muted">No members found.</p>`
-          : html`<player-list src="${this.src}" .team=${team}></player-list>`}
+        <player-list
+          src=${`/api/players?team=${encodeURIComponent(this.id || '')}`}
+          .team=${this.id}
+          profile-link="stats"
+        ></player-list>
       </main>
     `;
   }
