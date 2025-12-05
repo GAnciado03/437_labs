@@ -1,9 +1,15 @@
-import { Router, Request, Response } from 'express';
+import { Router, Request, Response, NextFunction } from 'express';
 import { PlayerModel } from '../models/player';
 import { asyncHandler } from '../middleware/error';
 import { requireFields, isEmptyObject } from '../utils/validate';
+import { authenticateUser } from './auth';
 
 const router = Router();
+
+router.use((req: Request, res: Response, next: NextFunction) => {
+  if (req.method === 'GET') return next();
+  return authenticateUser(req, res, next);
+});
 
 // GET /api/players
 // Supports filtering: ?team=T1&role=Mid&q=faker

@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <link rel="stylesheet" href="styles/reset.css" />
     <link rel="stylesheet" href="styles/pages.css" />
+    <link rel="icon" type="image/x-icon" href="icons/favicon.ico" />
     <script type="module" src="/scripts/theme.js"></script>
-    <script type="module" src="/scripts/user-button.js"></script>
     <style>
       .auth-shell {
         min-height: 100vh;
@@ -34,6 +34,19 @@
       .auth-card register-form {
         display: block;
         text-align: left;
+      }
+      .guest-btn {
+        display: inline-block;
+        margin-top: var(--space-2, 0.75rem);
+        padding: 0.5rem 1rem;
+        border-radius: var(--radius-sm, 8px);
+        background: var(--color-accent, #4f46e5);
+        color: #fff;
+        text-decoration: none;
+        font-weight: 600;
+      }
+      .guest-btn:hover {
+        filter: brightness(0.95);
       }
     </style>
     <script type="module">

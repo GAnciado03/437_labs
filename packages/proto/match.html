@@ -19,19 +19,15 @@
     <link rel="icon" type="image/x-icon" href="icons/favicon.ico" />
     <script type="module" src="/scripts/theme.js"></script>
     <script type="module" src="/scripts/user-button.js"></script>
+    <script type="module" src="/src/pages/static-pages.ts"></script>
   </head>
   <body>
     <div class="page-shell">
       <section class="page-layout">
         <div class="page-side page-side--left"></div>
         <div class="page-panel">
-          <main class="container">
-            <h1>Match Information</h1>
-            <p>Match: T1 vs AG</p>
-            <p>Date: October 31, 2025</p>
-            <p>Teams: <a href="team.html?id=T1">T1</a> vs <a href="team.html?id=Anyone%27s%20Legend">Anyone's Legend</a></p>
-            <p>Stats: <a href="stats.html">View Match Stats</a></p>
-            <a href="index.html">Back to Home</a>
+          <main class="container" style="padding:0;">
+            <match-view></match-view>
           </main>
         </div>
         <div class="page-side page-side--right"></div>

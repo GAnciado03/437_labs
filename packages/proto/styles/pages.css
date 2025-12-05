@@ -45,8 +45,25 @@ a {
   padding-inline: 1px;
 }
 
+a:visited {
+  color: var(--color-link-visited, var(--color-accent));
+}
+
 a:hover {
   text-decoration: underline;
+}
+
+.back-links {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: 600;
+  margin-bottom: var(--space-3, 1rem);
+}
+
+.back-links .divider {
+  color: var(--color-muted, #64748b);
+  font-weight: 400;
 }
 
 p.lead {

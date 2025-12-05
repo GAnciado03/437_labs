@@ -71,9 +71,6 @@ export class PlayerView extends LitElement {
     this.player = undefined;
     try {
       const res = await (useApi ? apiFetch(target) : fetch(target));
-      if (res.status === 401) {
-        throw new Error('Please log in to view live player data.');
-      }
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const payload = await res.json();
       const list = Array.isArray(payload)
@@ -281,6 +278,11 @@ export class PlayerView extends LitElement {
 
     return html`
       <main>
+        <nav class="back-links">
+          <a href="index.html" data-back-link data-back-fallback="index.html">Back</a>
+          <span class="divider" aria-hidden="true">·</span>
+          <a href="index.html">Back to Home</a>
+        </nav>
         <h1>Players</h1>
         <div class="actions">
           <button class="fav ${isFav ? 'active' : ''}" @click=${toggleFav}>
@@ -315,13 +317,15 @@ export class PlayerView extends LitElement {
                 : html`Showing all players.`}
         </p>
 
-        <player-list
-          src="/api/players"
-          .gameTeams=${this.gameTeams}
-          .filterName=${filterName}
-          .filterTeam=${filterTeam}
-          .filterGame=${filterGame}
-        ></player-list>
+        <div class="list-box" role="region" aria-label="Player list">
+          <player-list
+            src="/api/players"
+            .gameTeams=${this.gameTeams}
+            .filterName=${filterName}
+            .filterTeam=${filterTeam}
+            .filterGame=${filterGame}
+          ></player-list>
+        </div>
       </main>
     `;
   }

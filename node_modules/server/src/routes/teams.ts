@@ -1,9 +1,15 @@
-import { Router, Request, Response } from 'express';
+import { Router, Request, Response, NextFunction } from 'express';
 import { TeamModel } from '../models/team';
 import { asyncHandler } from '../middleware/error';
 import { requireFields, isEmptyObject } from '../utils/validate';
+import { authenticateUser } from './auth';
 
 const router = Router();
+
+router.use((req: Request, res: Response, next: NextFunction) => {
+  if (req.method === 'GET') return next();
+  return authenticateUser(req, res, next);
+});
 
 // GET /api/teams
 router.get('/', asyncHandler(async (req: Request, res: Response) => {

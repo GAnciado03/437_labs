@@ -19,18 +19,15 @@
     <link rel="icon" type="image/x-icon" href="icons/favicon.ico" />
     <script type="module" src="/scripts/theme.js"></script>
     <script type="module" src="/scripts/user-button.js"></script>
+    <script type="module" src="/src/pages/static-pages.ts"></script>
   </head>
   <body>
     <div class="page-shell">
       <section class="page-layout">
         <div class="page-side page-side--left"></div>
         <div class="page-panel">
-          <main class="container">
-            <h1>Tournament Bracket</h1>
-            <p>Tournament: League of Legends Worlds Championship</p>
-            <p>Schedule: <a href="match.html">Match Listings</a></p>
-            <p><a href="events.html">Back to Event</a></p>
-            <p><a href="index.html">Back to Home</a></p>
+          <main class="container" style="padding:0;">
+            <tournament-view></tournament-view>
           </main>
         </div>
         <div class="page-side page-side--right"></div>

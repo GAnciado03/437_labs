@@ -3,6 +3,9 @@ import { customElement, property, state } from "lit/decorators.js";
 import registerFormStyles from "../../styles/register-form.css?inline";
 import { apiUrl } from "../utils/api.ts";
 
+const USERNAME_PATTERN = /^[A-Za-z]{3,16}$/;
+const PASSWORD_PATTERN = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_ ]).+$/;
+
 @customElement("register-form")
 export class RegisterFormElement extends LitElement {
   static styles = unsafeCSS(registerFormStyles);
@@ -12,9 +15,34 @@ export class RegisterFormElement extends LitElement {
   @state() private error: string | null = null;
   @state() private formData: { first?: string; last?: string; username?: string; password?: string; confirm?: string } = {};
 
+  get usernameError() {
+    const username = this.formData.username || "";
+    if (!username) return null;
+    if (!USERNAME_PATTERN.test(username)) {
+      return "Username must be 3-16 characters with no spaces.";
+    }
+    return null;
+  }
+
+  get passwordError() {
+    const password = this.formData.password || "";
+    if (!password) return null;
+    if (!PASSWORD_PATTERN.test(password)) {
+      return "Password needs an uppercase letter, a number, and a special character.";
+    }
+    return null;
+  }
+
   get canSubmit() {
     const { first, last, username, password, confirm } = this.formData;
-    return Boolean(this.api && first && last && username && password && confirm && password === confirm);
+    const basicFilled = Boolean(this.api && first && last && username && password && confirm);
+    const passwordsMatch = password === confirm;
+    return Boolean(
+      basicFilled &&
+      passwordsMatch &&
+      !this.usernameError &&
+      !this.passwordError
+    );
   }
 
   private handleChange(e: Event) {
@@ -22,11 +50,12 @@ export class RegisterFormElement extends LitElement {
     const name = target?.name as keyof RegisterFormElement["formData"];
     const value = target?.value ?? "";
     this.formData = { ...this.formData, [name]: value };
+    this.error = null;
   }
 
   private onSubmit = (ev: Event) => {
     ev.preventDefault();
-    if (!this.canSubmit) { this.error = "Please complete all fields"; return; }
+    if (!this.canSubmit) { this.error = "Please fix the highlighted fields."; return; }
     const body = { username: this.formData.username, password: this.formData.password };
     fetch(this.api || "", {
       method: "POST",
@@ -34,6 +63,8 @@ export class RegisterFormElement extends LitElement {
       body: JSON.stringify(body)
     })
       .then((res) => {
+        if (res.status === 409) throw new Error("Username already exists. Try a different one.");
+        if (res.status === 400) throw new Error("Invalid registration data.");
         if (res.status !== 201) throw new Error("Registration failed");
         return res.json();
       })
@@ -63,6 +94,7 @@ export class RegisterFormElement extends LitElement {
 
   render() {
     const mismatch = this.formData.password && this.formData.confirm && this.formData.password !== this.formData.confirm;
+    const confirmMessage = mismatch ? "Passwords do not match" : "";
     return html`
       <form @change=${this.handleChange} @submit=${this.onSubmit}>
         <div class="row">
@@ -78,18 +110,20 @@ export class RegisterFormElement extends LitElement {
         <label>
           <span>Username:</span>
           <input name="username" autocomplete="off" />
+          ${this.usernameError ? html`<div class="error">${this.usernameError}</div>` : null}
         </label>
-        <div class="row">
+        <div class="row vertical">
           <label>
             <span>Password:</span>
             <input type="password" name="password" />
+            <div class="error">${this.passwordError || ""}</div>
           </label>
           <label>
             <span>Confirm Password:</span>
             <input type="password" name="confirm" />
+            <div class="error">${confirmMessage}</div>
           </label>
         </div>
-        ${mismatch ? html`<div class="error">Passwords do not match</div>` : null}
         <button type="submit" ?disabled=${!this.canSubmit}>Register</button>
         ${this.error ? html`<div class="error">${this.error}</div>` : null}
       </form>

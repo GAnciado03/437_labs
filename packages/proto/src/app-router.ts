@@ -5,10 +5,8 @@ import "./components/team-chooser.ts";
 import "./components/user-dashboard.ts";
 import "./pages/static-pages.ts";
 import "./components/player-view.js";
-import "./components/game-view.js";
 import "./components/player-stats.js";
 import "./components/team-view.js";
-import "./components/top-nav.js";
 import "./components/player-list.js";
 import "./auth/login-form.ts";
 import "./auth/register-form.ts";
@@ -49,7 +47,6 @@ const routes: Route[] = [
       </main>
     `
   },
-  { path: "/game.html", view: () => html`<main class="container"><top-nav home="index.html"></top-nav><game-view></game-view></main>` },
   { path: "/player.html", view: () => html`<main class="container"><player-view></player-view></main>` },
   { path: "/stats.html", view: () => html`<main class="container"><player-stats></player-stats></main>` },
   { path: "/team.html", view: () => html`<main class="container"><team-view></team-view></main>` },
@@ -71,7 +68,7 @@ export class AppRouter extends Switch.Element {
       <main class="container">
         <h1>Not Found</h1>
         <p class="muted">The requested page does not exist.</p>
-        <p><a href="index.html">Back to Home</a></p>
+        <p><a href="index.html" data-back-link>Back to Home</a></p>
       </main>
     `;
   }

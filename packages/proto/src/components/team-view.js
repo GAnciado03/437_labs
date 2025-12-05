@@ -21,24 +21,6 @@ export class TeamView extends LitElement {
     this.error = null;
   }
 
-  getPrevHref() {
-    try {
-      const ref = document.referrer;
-      if (!ref) return null;
-      const refUrl = new URL(ref);
-      if (refUrl.origin !== location.origin) return null;
-      const path = refUrl.pathname + refUrl.search + refUrl.hash;
-      return path || refUrl.pathname;
-    } catch {
-      return null;
-    }
-  }
-
-  isHomePath(path) {
-    if (!path) return false;
-    return path === '/' || path.endsWith('/index.html') || path === 'index.html' || path === '/index.html';
-  }
-
   connectedCallback() {
     super.connectedCallback();
     const urlId = new URL(location.href).searchParams.get('id') || '';
@@ -49,15 +31,24 @@ export class TeamView extends LitElement {
     if (changed.has('id')) this.fetchTeam();
   }
 
+  getReferrerPath() {
+    try {
+      const ref = document.referrer;
+      if (!ref) return null;
+      const refUrl = new URL(ref);
+      if (refUrl.origin !== location.origin) return null;
+      return refUrl.pathname + refUrl.search + refUrl.hash || refUrl.pathname;
+    } catch {
+      return null;
+    }
+  }
+
   async fetchTeam() {
     if (!this.id) return;
     this.loading = true;
     this.error = null;
     try {
       const res = await apiFetch(apiUrl(`/api/teams/${encodeURIComponent(this.id)}`));
-      if (res.status === 401) {
-        throw new Error('Please log in to view teams.');
-      }
       if (res.ok) {
         this.teamData = await res.json();
       } else if (res.status === 404) {
@@ -76,8 +67,9 @@ export class TeamView extends LitElement {
     if (this.loading && !this.teamData) return html`<main class="container"><p class="muted">Loading...</p></main>`;
     if (this.error && !this.teamData) return html`<main class="container"><p class="muted">Error: ${this.error}</p></main>`;
     const team = this.teamData?.name || this.id || 'Team';
-    const prev = this.getPrevHref();
-    const prevIsHome = this.isHomePath(prev);
+    const rosterTeam = this.teamData?.id || this.id || '';
+    const rosterSrc = rosterTeam ? `/api/players?team=${encodeURIComponent(rosterTeam)}` : '/api/players';
+    const fallback = this.getReferrerPath() || 'teamchooser.html';
     const authed = Boolean(localStorage.getItem('token'));
     const favKey = 'favTeams';
     const localFavs = JSON.parse(localStorage.getItem(favKey) || '[]');
@@ -108,10 +100,11 @@ export class TeamView extends LitElement {
 
     return html`
       <main class="container">
-        <p style="margin: 0 0 var(--space-2);">
-          ${prev && !prevIsHome ? html`<a href="${prev}">Back</a> &middot; ` : null}
+        <nav class="back-links">
+          <a href="${fallback}" data-back-link data-back-fallback="${fallback}">Back</a>
+          <span class="divider" aria-hidden="true">&middot;</span>
           <a href="index.html">Back to Home</a>
-        </p>
+        </nav>
         <h1>Team Profile</h1>
         <div class="actions">
           <button class="fav ${isFav ? 'active' : ''}" @click=${toggleFav}>
@@ -120,11 +113,13 @@ export class TeamView extends LitElement {
         </div>
         <p class="meta">Team Name: ${team}</p>
         <h2 style="margin-top: var(--space-3)">Players</h2>
-        <player-list
-          src=${`/api/players?team=${encodeURIComponent(this.id || '')}`}
-          .team=${this.id}
-          profile-link="stats"
-        ></player-list>
+        <div class="list-box" role="region" aria-label="Team roster">
+          <player-list
+            src=${rosterSrc}
+            .team=${rosterTeam}
+            profile-link="stats"
+          ></player-list>
+        </div>
       </main>
     `;
   }

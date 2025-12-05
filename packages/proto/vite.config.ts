@@ -21,7 +21,6 @@ export default defineConfig({
         index: r('index.html'),
         login: r('login.html'),
         newuser: r('newuser.html'),
-        game: r('game.html'),
         match: r('match.html'),
         player: r('player.html'),
         stats: r('stats.html'),

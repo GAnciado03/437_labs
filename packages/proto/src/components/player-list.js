@@ -56,7 +56,6 @@ export class PlayerList extends LitElement {
     const target = this.resolveSrc(this.src);
     try {
       const res = await (useApi ? apiFetch(target, { signal: this.#abort.signal }) : fetch(target, { signal: this.#abort.signal }));
-      if (res.status === 401) throw new Error('Please log in to view player list.');
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       const list = Array.isArray(data) ? data : [];

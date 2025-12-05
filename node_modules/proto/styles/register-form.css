@@ -3,7 +3,7 @@
 }
 form {
   display: grid;
-  gap: 0.75rem;
+  gap: 1rem;
 }
 label {
   display: grid;
@@ -27,6 +27,11 @@ button {
   gap: 0.75rem;
   grid-template-columns: 1fr 1fr;
 }
+.row.vertical {
+  grid-template-columns: 1fr;
+}
 .error {
   color: #b91c1c;
+  font-size: 0.9rem;
+  min-height: 1.1rem;
 }

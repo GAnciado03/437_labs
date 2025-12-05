@@ -2,7 +2,6 @@ import { LitElement, html, css } from "lit";
 
 const links = [
   { href: "user.html", icon: "user-default", label: "User" },
-  { href: "game.html", icon: "icon-controller", label: "Games" },
   { href: "player.html", icon: "player-icon-default", label: "Players" },
   { href: "teamchooser.html", icon: "icon-team", label: "Teams" },
   { href: "events.html", icon: "icon-event", label: "Events" }

@@ -6,6 +6,8 @@ import credentials from "../services/credential-svc";
 const router = express.Router();
 dotenv.config();
 const TOKEN_SECRET: string = process.env.TOKEN_SECRET || "NOT_A_SECRET";
+const USERNAME_PATTERN = /^[A-Za-z]{3,16}$/;
+const PASSWORD_PATTERN = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_ ]).+$/;
 
 function generateAccessToken(username: string): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -23,7 +25,12 @@ function generateAccessToken(username: string): Promise<string> {
 
 router.post("/register", (req: Request, res: Response) => {
   const { username, password } = req.body || {};
-  if (typeof username !== "string" || typeof password !== "string") {
+  if (
+    typeof username !== "string" ||
+    typeof password !== "string" ||
+    !USERNAME_PATTERN.test(username) ||
+    !PASSWORD_PATTERN.test(password)
+  ) {
     res.status(400).send("Bad request: Invalid input data.");
   } else {
     credentials

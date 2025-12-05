@@ -53,7 +53,6 @@ export class PlayerStats extends LitElement {
     try {
       const target = this.buildTarget();
       const res = await apiFetch(target);
-      if (res.status === 401) throw new Error('Please log in to view stats.');
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const result = await res.json();
       if (Array.isArray(result)) {
@@ -78,33 +77,73 @@ export class PlayerStats extends LitElement {
   }
 
   render() {
-    if (this.loading) return html`<main class="container"><p>Loading…</p></main>`;
+    if (this.loading) return html`<main class="container"><p>Loading...</p></main>`;
     if (this.error) return html`<main class="container"><p>Error: ${this.error}</p></main>`;
     if (!this.player) return html`<main class="container"><p>No data.</p></main>`;
     const p = this.player;
     const s = p.stats || {};
+
+    const favKey = 'favPlayers';
+    let favList = [];
+    try {
+      const raw = localStorage.getItem(favKey) || '[]';
+      const parsed = JSON.parse(raw);
+      favList = Array.isArray(parsed) ? parsed : [];
+    } catch {}
+    const authed = Boolean(localStorage.getItem('token'));
+    const isFav = favList.includes(p.id);
+    const toggleFav = async () => {
+      if (!authed) {
+        location.href = 'login.html';
+        return;
+      }
+      let current = favList;
+      try {
+        const token = localStorage.getItem('token') || '';
+        const meRes = await fetch(apiUrl('/api/me'), { headers: { Authorization: `Bearer ${token}` } });
+        const me = meRes.ok ? await meRes.json() : { favPlayers: current };
+        current = Array.isArray(me.favPlayers) ? me.favPlayers : current;
+        const next = isFav ? current.filter((x) => x !== p.id) : [...new Set([...current, p.id])];
+        await fetch(apiUrl('/api/me'), {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify({ favPlayers: next })
+        });
+        localStorage.setItem(favKey, JSON.stringify(next));
+      } catch {}
+      this.requestUpdate();
+    };
+
     return html`
       <main class="container">
-        <p style="margin: 0 0 var(--space-2);">
-          <a href="player.html?id=${p.id}">View Player</a>
-          ·
+        <nav class="back-links">
+          <a href="player.html?id=${p.id}" data-back-link data-back-fallback="player.html?id=${p.id}">Back</a>
+          <span class="divider" aria-hidden="true">·</span>
           <a href="index.html">Back to Home</a>
-        </p>
+        </nav>
         <h1>Player Stats</h1>
         <p>Player: <a href="player.html?id=${p.id}">${p.name}</a></p>
+        <div class="actions">
+          <button class="fav-btn ${isFav ? 'active' : ''}" @click=${toggleFav}>
+            ${isFav ? 'Favorited' : 'Favorite'}
+          </button>
+        </div>
         <section class="grid" style="margin-top: var(--space-3)">
           <div class="span-4">
-            <stat-card label="K/D/A" .value=${s.kda ?? '—'} icon="insights" accent="#2563eb" clickable
+            <stat-card label="K/D/A" .value=${s.kda ?? '-'} icon="insights" accent="#2563eb" clickable
               .selected=${this.activeStat?.label === 'K/D/A'}>
               <span slot="footer">Last 10 games</span>
             </stat-card>
           </div>
           <div class="span-4">
-            <stat-card label="Win Rate" .value=${String(s.winRate ?? '—')} unit="%" icon="trending_up" accent="#10b981"
+            <stat-card label="Win Rate" .value=${String(s.winRate ?? '-')} unit="%" icon="trending_up" accent="#10b981"
               clickable .selected=${this.activeStat?.label === 'Win Rate'}></stat-card>
           </div>
           <div class="span-4">
-            <stat-card label="Matches Played" .value=${String(s.matches ?? '—')} icon="confirmation_number" accent="#f59e0b"
+            <stat-card label="Matches Played" .value=${String(s.matches ?? '-')} icon="confirmation_number" accent="#f59e0b"
               clickable .selected=${this.activeStat?.label === 'Matches Played'}></stat-card>
           </div>
         </section>

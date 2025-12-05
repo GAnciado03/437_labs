@@ -7,6 +7,7 @@ function isAuthenticated() {
 }
 
 function insertUserButton() {
+  if (!isAuthenticated()) return;
   const path = (location.pathname || "").toLowerCase();
   if (
     path === "/" ||
@@ -21,11 +22,10 @@ function insertUserButton() {
 
   const btn = document.createElement("a");
   btn.id = "floating-user-button";
-  const authed = isAuthenticated();
-  btn.href = authed ? "user.html" : "login.html";
-  btn.setAttribute("aria-label", authed ? "User" : "Login");
+  btn.href = "user.html";
+  btn.setAttribute("aria-label", "User");
   btn.className = "mono";
-  btn.textContent = authed ? "User" : "Login";
+  btn.textContent = "User";
 
   Object.assign(btn.style, {
     position: "fixed",
@@ -44,7 +44,6 @@ function insertUserButton() {
 
   document.body.appendChild(btn);
 
-  // Bypass capture handlers so clicks work even when scripts intercept
   btn.addEventListener("click", (event) => {
     event.stopPropagation();
   });

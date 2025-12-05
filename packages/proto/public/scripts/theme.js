@@ -14,6 +14,14 @@
     const body = document.body || document.documentElement;
     if (!body) return;
 
+    const currentPath =
+      window.location.pathname +
+      window.location.search +
+      window.location.hash;
+    const PREV_PATH_KEY = "app:prev-path";
+    const storedPrevPath = sessionStorage.getItem(PREV_PATH_KEY) || "";
+    sessionStorage.setItem(PREV_PATH_KEY, currentPath);
+
     const syncButton = (btn) => {
       const isDark = body.classList.contains("dark");
       btn.setAttribute("aria-pressed", String(isDark));
@@ -89,5 +97,30 @@
     };
 
     window.toggleTheme = toggleTheme;
+
+    const handleBackLinks = () => {
+      document.addEventListener("click", (event) => {
+        const anchor = event.target instanceof Element ? event.target.closest("a[data-back-link]") : null;
+        if (!anchor) return;
+        if (window.history.length > 1) {
+          event.preventDefault();
+          window.history.back();
+          return;
+        }
+        if (storedPrevPath && storedPrevPath !== currentPath) {
+          event.preventDefault();
+          window.location.href = storedPrevPath;
+          return;
+        }
+        event.preventDefault();
+        const fallback =
+          anchor.getAttribute("data-back-fallback") ||
+          anchor.getAttribute("href") ||
+          "/";
+        window.location.href = fallback;
+      });
+    };
+
+    handleBackLinks();
   });
 })();
