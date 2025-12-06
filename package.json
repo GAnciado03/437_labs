@@ -2,8 +2,8 @@
   "name": "437_labs",
   "version": "1.0.0",
   "description": "",
-  "private": true,
   "main": "packages/proto/index.js",
+  "private":true,
   "workspaces": [
     "packages/*"
   ],

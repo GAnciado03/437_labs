@@ -17,7 +17,7 @@
   "dependencies": {
     "@calpoly/mustang": "^0.1.13",
     "lit": "^3.3.1",
-    "server": "workspace:*"
+    "server": "file:../server"
   },
   "devDependencies": {
     "tsc": "^2.0.4",
