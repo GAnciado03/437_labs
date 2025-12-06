@@ -121,7 +121,8 @@ export class UserDashboard extends LitElement {
     token: { type: String },
     profile: { state: true },
     favPlayers: { state: true },
-    favTeams: { state: true }
+    favTeams: { state: true },
+    isDarkMode: { state: true }
   };
 
   loading: boolean;
@@ -129,6 +130,8 @@ export class UserDashboard extends LitElement {
   profile: Record<string, unknown>;
   favPlayers: string[];
   favTeams: string[];
+  private themeObserver?: MutationObserver;
+  private isDarkMode = false;
 
   constructor() {
     super();
@@ -142,6 +145,25 @@ export class UserDashboard extends LitElement {
   connectedCallback() {
     super.connectedCallback();
     if (this.token) this.fetchProfile();
+    this.syncThemeState();
+    const target = document.body || document.documentElement;
+    if (target && typeof MutationObserver !== "undefined") {
+      this.themeObserver = new MutationObserver(() => this.syncThemeState());
+      this.themeObserver.observe(target, { attributes: true, attributeFilter: ["class"] });
+    }
+  }
+
+  disconnectedCallback() {
+    this.themeObserver?.disconnect();
+    super.disconnectedCallback();
+  }
+
+  private syncThemeState() {
+    const target = document.body || document.documentElement;
+    const next = target?.classList.contains("dark") ?? false;
+    if (this.isDarkMode !== next) {
+      this.isDarkMode = next;
+    }
   }
 
   readLocal(key: string) {
@@ -319,11 +341,13 @@ export class UserDashboard extends LitElement {
             type="button"
             class="mono"
             data-theme-button
-            aria-pressed="false"
-            data-label-on="Dark: On"
-            data-label-off="Dark: Off"
+            aria-pressed=${String(this.isDarkMode)}
+            data-label-on="Dark Mode: Yes"
+            data-label-off="Dark Mode: No"
             @click=${() => (window as any).toggleTheme?.()}
-          >Dark: Off</button>
+          >
+            ${this.isDarkMode ? "Dark Mode: Yes" : "Dark Mode: No"}
+          </button>
         </div>
         <div class="avatar">
           <svg class="icon" aria-hidden="true"><use href="icons/icons.svg#user-default"></use></svg>

@@ -90,8 +90,14 @@ export default class HeaderElement extends LitElement {
           )}
         </nav>
         <div class="actions">
-          <button class="theme-btn" data-theme-button @click=${this.handleThemeToggle}>
-            Dark: Off
+          <button
+            class="theme-btn"
+            data-theme-button
+            data-label-on="Dark Mode: Yes"
+            data-label-off="Dark Mode: No"
+            @click=${this.handleThemeToggle}
+          >
+            Dark Mode: No
           </button>
         </div>
       </header>
