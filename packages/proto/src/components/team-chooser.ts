@@ -1,6 +1,15 @@
 import { LitElement, html, css } from "lit";
+import { state } from "lit/decorators.js";
 import { apiFetch, apiUrl } from "../utils/api.ts";
 import "./team-detail-card.js";
+
+type Team = {
+  id?: string;
+  name?: string;
+  tag?: string;
+  region?: string;
+  game?: string;
+};
 
 export class TeamChooser extends LitElement {
   static styles = css`
@@ -128,28 +137,29 @@ export class TeamChooser extends LitElement {
     }
   `;
 
-  static properties = {
-    teams: { state: true },
-    loading: { state: true },
-    error: { state: true },
-    filterType: { state: true },
-    filterValue: { state: true },
-    selectedTeam: { state: true },
-    regionOptions: { state: true },
-    gameOptions: { state: true }
-  };
+  @state()
+  teams: Team[] = [];
 
-  constructor() {
-    super();
-    this.teams = [];
-    this.loading = false;
-    this.error = "";
-    this.filterType = "team";
-    this.filterValue = "";
-    this.selectedTeam = null;
-    this.regionOptions = [];
-    this.gameOptions = [];
-  }
+  @state()
+  loading = false;
+
+  @state()
+  error = "";
+
+  @state()
+  filterType: "team" | "region" | "game" = "team";
+
+  @state()
+  filterValue = "";
+
+  @state()
+  selectedTeam: Team | null = null;
+
+  @state()
+  regionOptions: string[] = [];
+
+  @state()
+  gameOptions: string[] = [];
 
   connectedCallback() {
     super.connectedCallback();
@@ -179,10 +189,10 @@ export class TeamChooser extends LitElement {
     }
   }
 
-  buildOptions(list) {
-    const regions = new Set();
-    const games = new Set();
-    list.forEach((team) => {
+  buildOptions(list: Team[]) {
+    const regions = new Set<string>();
+    const games = new Set<string>();
+    list.forEach((team: Team) => {
       const region = (team.region || "").trim();
       if (region) regions.add(region);
       const game = (team.game || "").trim();
@@ -195,7 +205,7 @@ export class TeamChooser extends LitElement {
     this.gameOptions = Array.from(games).sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" }));
   }
 
-  get filteredTeams() {
+  get filteredTeams(): Team[] {
     const value = (this.filterValue || "").trim().toLowerCase();
     if (!value) return this.teams;
     switch (this.filterType) {
@@ -212,13 +222,14 @@ export class TeamChooser extends LitElement {
     }
   }
 
-  handleFilterTypeChange = (event) => {
-    this.filterType = event.target.value;
+  handleFilterTypeChange = (event: Event) => {
+    const value = (event.target as HTMLSelectElement)?.value as typeof this.filterType;
+    this.filterType = value || "team";
     this.filterValue = "";
   };
 
-  handleFilterValueChange = (event) => {
-    this.filterValue = (event.target.value || "").trim();
+  handleFilterValueChange = (event: Event) => {
+    this.filterValue = ((event.target as HTMLInputElement)?.value || "").trim();
   };
 
   resetFilters = () => {
@@ -226,7 +237,7 @@ export class TeamChooser extends LitElement {
     this.filterValue = "";
   };
 
-  async selectTeam(team) {
+  async selectTeam(team: Team | undefined) {
     if (!team) return;
     const key = team.tag || team.id || team.name;
     if (!key) {
@@ -285,7 +296,7 @@ export class TeamChooser extends LitElement {
     const list = this.filteredTeams;
     return html`
       <div class="results" role="listbox" aria-label="Teams">
-        ${list.map((team) => {
+        ${list.map((team: Team) => {
           const displayName = team?.name || team?.tag || team?.id;
           const shortId = team?.tag || team?.id || team?.name || "";
           const isActive = this.selectedTeam?.id === team.id;

@@ -1,7 +1,7 @@
-import { LitElement, html, css } from "lit";
+import { CSSResultGroup, LitElement, css, html } from "lit";
 
 class BaseStaticPage extends LitElement {
-  static styles = css`
+  static styles: CSSResultGroup = css`
     :host {
       display: block;
     }
@@ -125,7 +125,7 @@ export class EventsView extends BaseStaticPage {
     `;
   }
 
-  static styles = [
+  static styles: CSSResultGroup = [
     BaseStaticPage.styles,
     css`
       .event-shell {
