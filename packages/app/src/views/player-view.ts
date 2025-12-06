@@ -160,9 +160,14 @@ export class PlayerViewElement extends View<Model, Msg> {
         <header>
           <h2>${player.name}</h2>
           <p class="muted">${player.team || "Free Agent"}</p>
-          <button class="fav ${isFav ? "active" : ""}" @click=${this.toggleFavorite}>
-            ${isFav ? "Favorited" : "Favorite"}
-          </button>
+        <div class="actions">
+            <button class=${isFav ? "action-button active" : "action-button"} @click=${this.toggleFavorite}>
+              ${isFav ? "Favorited" : "Favorite"}
+            </button>
+            ${player.id
+              ? html`<a class="action-button link" href=${`/app/players/${player.id}/edit`}>Edit</a>`
+              : null}
+          </div>
         </header>
         <dl>
           <div>
@@ -174,7 +179,7 @@ export class PlayerViewElement extends View<Model, Msg> {
             <dd>${player.role || "Flex"}</dd>
           </div>
         </dl>
-        <p>${player.bio || "Player bio loading from API."}</p>
+        <p>${player.bio || "Bio unavailable."}</p>
       </article>
     `;
   }
@@ -304,20 +309,30 @@ export class PlayerViewElement extends View<Model, Msg> {
       font-weight: 600;
       margin: 0;
     }
-    .fav {
-      align-self: flex-start;
+    .action-button {
       border: 1px solid var(--color-border, #e2e8f0);
-      padding: 0.35rem 0.9rem;
+      padding: 0.35rem 1rem;
       border-radius: 999px;
-      background: var(--color-surface, transparent);
+      background: var(--color-surface, #fff);
       cursor: pointer;
       font-weight: 600;
       color: inherit;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      min-width: 104px;
+      justify-content: center;
     }
-    .fav.active {
+    .action-button.active {
       background: var(--color-accent, #4f46e5);
       color: var(--color-accent-contrast, #fff);
       border-color: transparent;
+    }
+    .action-button.link {
+      background: var(--color-brand-muted, transparent);
+      color: var(--color-accent, #4f46e5);
+      border-color: var(--color-border, #e2e8f0);
     }
     .fav-dot {
       display: inline-block;
@@ -326,6 +341,11 @@ export class PlayerViewElement extends View<Model, Msg> {
       border-radius: 50%;
       background: var(--color-accent, #4f46e5);
       margin-left: 0.35rem;
+    }
+    .actions {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
     }
     .muted {
       color: var(--color-muted, #94a3b8);

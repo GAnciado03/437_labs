@@ -1,5 +1,6 @@
 import { Auth, Message, Update } from "@calpoly/mustang";
-import type { Msg } from "./messages";
+import type { Player } from "server/models";
+import type { Msg, PlayerSaveCallbacks } from "./messages";
 import type { Model } from "./model";
 import { apiUrl } from "./utils/api";
 import { MODEL_CONTEXT } from "./contexts";
@@ -93,6 +94,52 @@ export default function update(
         persistFavorites(next);
       };
     }
+    case "player/merge": {
+      const { player } = message[1];
+      if (!player?.id) return;
+      apply((model) => {
+        const list = model.players ?? [];
+        const index = list.findIndex(
+          (existing) =>
+            existing.id &&
+            player.id &&
+            existing.id.toLowerCase() === player.id.toLowerCase()
+        );
+        const players =
+          index >= 0
+            ? [
+                ...list.slice(0, index),
+                player,
+                ...list.slice(index + 1)
+              ]
+            : [...list, player];
+        return {
+          ...model,
+          players
+        };
+      });
+      return;
+    }
+    case "player/save": {
+      const [, payload] = message;
+      const callbacks: PlayerSaveCallbacks = payload.callbacks ?? {};
+      const { player } = payload;
+      if (!player?.id) return;
+      return () => {
+        savePlayer(player, user)
+          .then((saved) => {
+            dispatchToStore(["player/merge", { player: saved }]);
+            callbacks.onSuccess?.();
+          })
+          .catch((error) => {
+            callbacks.onFailure?.(
+              error instanceof Error
+                ? error
+                : new Error(String(error))
+            );
+          });
+      };
+    }
     default:
       return;
   }
@@ -149,4 +196,24 @@ function dispatchToStore(msg: Msg) {
 
 function errorMessage(error: unknown) {
   return error instanceof Error ? error.message : String(error);
+}
+
+async function savePlayer(player: Player, user: Auth.User) {
+  const id = player.id;
+  if (!id) throw new Error("Player id is required to save.");
+  const response = await fetch(apiUrl(`/api/players/${encodeURIComponent(id)}`), {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      ...Auth.headers(user)
+    },
+    body: JSON.stringify(player)
+  });
+  if (response.status === 401) {
+    throw new Error("Please log in to edit player data.");
+  }
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status}`);
+  }
+  return (await response.json()) as Player;
 }

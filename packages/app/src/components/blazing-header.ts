@@ -19,7 +19,7 @@ export default class HeaderElement extends LitElement {
       width: 100%;
       border-bottom: 1px solid var(--color-border, #e2e8f0);
       background: var(--color-header, #0f172a);
-      color: #fff;
+      color: var(--color-header-contrast, #fff);
     }
     header {
       display: flex;
@@ -62,12 +62,22 @@ export default class HeaderElement extends LitElement {
       justify-content: center;
     }
     button.theme-btn {
-      border: 1px solid rgba(255, 255, 255, 0.6);
-      background: transparent;
+      border: 1px solid var(--color-border, rgba(255, 255, 255, 0.4));
+      background: rgba(255, 255, 255, 0.12);
       color: inherit;
       padding: 0.35rem 0.75rem;
       border-radius: 999px;
       cursor: pointer;
+      transition: background 0.2s ease, color 0.2s ease;
+    }
+    :host-context(body:not(.dark)) {
+      background: var(--color-surface, #fff);
+      color: var(--color-text, #0f172a);
+    }
+    :host-context(body:not(.dark)) button.theme-btn {
+      background: var(--color-surface, #fff);
+      border-color: var(--color-border, #e2e8f0);
+      color: var(--color-text, #0f172a);
     }
   `;
 

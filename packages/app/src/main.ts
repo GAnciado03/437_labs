@@ -1,8 +1,9 @@
-import { Auth, History, Store, Switch, define } from "@calpoly/mustang";
+import { Auth, Form, History, Store, Switch, define } from "@calpoly/mustang";
 import { html } from "lit";
 import "./views/home-view";
 import "./views/player-view";
 import "./views/favorites-view";
+import "./views/player-edit-view";
 import HeaderElement from "./components/blazing-header";
 import { AUTH_CONTEXT, HISTORY_CONTEXT } from "./contexts";
 import type { Model } from "./model";
@@ -18,6 +19,11 @@ const routes: Route[] = [
   {
     path: "/app/players/favorites",
     view: () => html`<favorites-view></favorites-view>`
+  },
+  {
+    path: "/app/players/:id/edit",
+    view: (params: Switch.Params) =>
+      html`<player-edit-view player-id=${params.id}></player-edit-view>`
   },
   {
     path: "/app/players/:id",
@@ -48,6 +54,7 @@ const elements = {
   "mu-history": History.Provider,
   "mu-switch": AppSwitch,
   "mu-store": AppStore,
+  "mu-form": Form.Element,
   "blazing-header": HeaderElement
 } as const;
 
