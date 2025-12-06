@@ -3,6 +3,7 @@ import mongoose, { Schema, Document, Model } from 'mongoose';
 export interface Team extends Document {
   id: string;
   name: string;
+  tag?: string;
   region?: string;
   game?: string;
   rank?: number;
@@ -20,6 +21,7 @@ const TeamSchema = new Schema<Team>(
     id: { type: String, required: true, unique: true, index: true },
     name: { type: String, required: true },
     region: { type: String },
+    tag: { type: String, index: true, sparse: true },
     game: { type: String, default: 'Valorant' },
     rank: { type: Number },
     country: { type: String },

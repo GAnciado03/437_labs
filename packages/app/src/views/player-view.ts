@@ -1,72 +1,80 @@
-﻿import { LitElement, css, html } from "lit";
-import { apiFetch, apiUrl } from "../utils/api";
+import { View } from "@calpoly/mustang";
+import { PropertyValueMap, css, html } from "lit";
+import { property, state } from "lit/decorators.js";
+import type { Player } from "server/models";
+import { MODEL_CONTEXT } from "../contexts";
+import type { Model } from "../model";
+import type { Msg } from "../messages";
 
-type Player = {
-  id: string;
-  name: string;
-  team?: string;
-  game?: string;
-  role?: string;
-  bio?: string;
-  stats?: Record<string, unknown>;
-};
-
-export class PlayerViewElement extends LitElement {
-  static properties = {
-    playerId: { type: String, attribute: "player-id", reflect: true },
-    players: { state: true },
-    loading: { state: true },
-    error: { state: true },
-    selected: { state: true },
-    favorites: { state: true },
-    searchTerm: { state: true }
-  } as const;
-
+export class PlayerViewElement extends View<Model, Msg> {
+  @property({ attribute: "player-id", reflect: true })
   playerId?: string;
-  players: Player[] = [];
-  loading = false;
-  error = "";
-  selected?: Player;
-  favorites: string[] = [];
-  searchTerm = "";
+
+  @state()
+  private searchTerm = "";
+
+  @state()
+  private selectedId = "";
+
+  constructor() {
+    super(MODEL_CONTEXT);
+  }
 
   connectedCallback() {
     super.connectedCallback();
-    this.loadPlayers();
-    this.readFavorites();
+    this.dispatchMessage(["players/request"]);
+    this.dispatchMessage(["favorites/init"]);
   }
 
-  updated(changed: Map<string, unknown>) {
-    if (changed.has("playerId") || (changed.has("players") && this.players.length)) {
-      this.syncSelected();
+  protected updated(changed: PropertyValueMap<PlayerViewElement>) {
+    super.updated(changed);
+    if (changed.has("playerId")) {
+      this.selectedId = this.playerId ?? "";
+    }
+    this.reconcileSelection();
+  }
+
+  private reconcileSelection() {
+    const list = this.players;
+    if (!list.length) {
+      if (this.selectedId) this.selectedId = "";
+      return;
+    }
+    const attrId = (this.playerId || "").toLowerCase();
+    if (attrId) {
+      const found = list.find(
+        (player) => player.id?.toLowerCase() === attrId
+      );
+      if (found && found.id !== this.selectedId) {
+        this.selectedId = found.id;
+        return;
+      }
+    }
+    if (
+      !this.selectedId ||
+      !list.some((player) => player.id === this.selectedId)
+    ) {
+      this.selectedId = list[0]?.id ?? "";
     }
   }
 
-  async loadPlayers() {
-    this.loading = true;
-    this.error = "";
-    try {
-      const res = await apiFetch(apiUrl("/api/players"));
-      if (res.status === 401) throw new Error("Please log in to view player data.");
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const payload = await res.json();
-      this.players = Array.isArray(payload) ? payload : payload ? [payload] : [];
-      this.syncSelected();
-    } catch (err) {
-      this.error = err instanceof Error ? err.message : String(err);
-    } finally {
-      this.loading = false;
-    }
+  private get players(): Player[] {
+    return this.model.players ?? [];
   }
 
-  syncSelected() {
-    if (!this.players.length) return;
-    const key = (this.playerId || "").toLowerCase();
-    const found = this.players.find((p) => (p.id || "").toLowerCase() === key);
-    this.selected = found || this.players[0];
+  private get favorites(): string[] {
+    return this.model.favorites ?? [];
   }
 
-  private getFilteredPlayers() {
+  private get status() {
+    return this.model.playersStatus;
+  }
+
+  private get errorMessage() {
+    return this.model.playersError ?? "";
+  }
+
+  private get filteredPlayers() {
     if (!this.searchTerm.trim()) return this.players;
     const term = this.searchTerm.trim().toLowerCase();
     return this.players.filter((player) => {
@@ -75,44 +83,41 @@ export class PlayerViewElement extends LitElement {
     });
   }
 
+  private get currentPlayer(): Player | undefined {
+    if (!this.selectedId) return undefined;
+    const normalized = this.selectedId.toLowerCase();
+    return this.players.find(
+      (player) => player.id?.toLowerCase() === normalized
+    );
+  }
+
   private onSearchInput = (event: Event) => {
     const value = (event.target as HTMLInputElement)?.value ?? "";
     this.searchTerm = value;
   };
 
-  private readFavorites() {
-    try {
-      const raw = localStorage.getItem("favPlayers");
-      const parsed = raw ? JSON.parse(raw) : [];
-      this.favorites = Array.isArray(parsed) ? parsed : [];
-    } catch {
-      this.favorites = [];
-    }
-  }
-
   private toggleFavorite = () => {
-    const player = this.selected;
+    const player = this.currentPlayer;
     if (!player?.id) return;
-    const next = new Set(this.favorites);
-    if (next.has(player.id)) {
-      next.delete(player.id);
-    } else {
-      next.add(player.id);
-    }
-    const list = Array.from(next);
-    localStorage.setItem("favPlayers", JSON.stringify(list));
-    this.favorites = list;
+    this.dispatchMessage(["favorites/toggle", { playerId: player.id }]);
   };
 
   private isFavorite(playerId?: string) {
     if (!playerId) return false;
-    const id = playerId.toLowerCase();
-    return this.favorites.some((fav) => fav.toLowerCase() === id);
+    const normalized = playerId.toLowerCase();
+    return this.favorites.some(
+      (fav) => fav.toLowerCase() === normalized
+    );
+  }
+
+  private handleSelect(player: Player) {
+    if (!player?.id) return;
+    this.selectedId = player.id;
   }
 
   renderSidebar() {
     if (!this.players.length) return null;
-    const list = this.getFilteredPlayers();
+    const list = this.filteredPlayers;
     return html`
       <div class="search">
         <label for="player-search">Search</label>
@@ -129,9 +134,11 @@ export class PlayerViewElement extends LitElement {
           ${list.map(
             (player) => html`
               <li>
-                <a href=${`/app/players/${player.id}`}>
+                <a href=${`/app/players/${player.id}`} @click=${() => this.handleSelect(player)}>
                   ${player.name}
-                  ${this.isFavorite(player.id) ? html`<span class="fav-dot" aria-label="Favorite" title="Favorite"></span>` : ""}
+                  ${this.isFavorite(player.id)
+                    ? html`<span class="fav-dot" aria-label="Favorite" title="Favorite"></span>`
+                    : null}
                 </a>
               </li>
             `
@@ -139,13 +146,13 @@ export class PlayerViewElement extends LitElement {
         </ol>
         ${list.length === 0
           ? html`<p class="muted">No players match "${this.searchTerm}".</p>`
-          : ""}
+          : null}
       </div>
     `;
   }
 
   renderDetail() {
-    const player = this.selected;
+    const player = this.currentPlayer;
     if (!player) return html`<p class="muted">Select a player.</p>`;
     const isFav = this.isFavorite(player.id);
     return html`
@@ -173,8 +180,15 @@ export class PlayerViewElement extends LitElement {
   }
 
   render() {
-    if (this.loading) return html`<p class="muted">Loading players…</p>`;
-    if (this.error) return html`<p class="muted">${this.error}</p>`;
+    if (
+      this.status === "loading" ||
+      (this.status === "idle" && !this.players.length)
+    ) {
+      return html`<p class="muted">Loading players.</p>`;
+    }
+    if (this.status === "error") {
+      return html`<p class="muted">${this.errorMessage}</p>`;
+    }
 
     return html`
       <main>
@@ -247,12 +261,17 @@ export class PlayerViewElement extends LitElement {
       flex-direction: column;
       gap: 0.5rem;
     }
-    a {
-      color: var(--color-accent, #4f46e5);
+    li a {
+      background: transparent;
       text-decoration: none;
+      width: 100%;
+      color: var(--color-accent, #4f46e5);
       font-weight: 600;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
-    a:hover {
+    li a:hover {
       text-decoration: underline;
     }
     .card {
@@ -333,4 +352,3 @@ export class PlayerViewElement extends LitElement {
 }
 
 customElements.define("player-view", PlayerViewElement);
-

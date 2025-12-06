@@ -1,12 +1,14 @@
-﻿import { Auth, History, Switch, define } from "@calpoly/mustang";
+import { Auth, History, Store, Switch, define } from "@calpoly/mustang";
 import { html } from "lit";
 import "./views/home-view";
 import "./views/player-view";
 import "./views/favorites-view";
 import HeaderElement from "./components/blazing-header";
-
-const HISTORY_KEY = "app:history";
-const AUTH_KEY = "app:auth";
+import { AUTH_CONTEXT, HISTORY_CONTEXT } from "./contexts";
+import type { Model } from "./model";
+import { init } from "./model";
+import type { Msg } from "./messages";
+import update from "./update";
 
 type Route = Switch.Route;
 
@@ -31,7 +33,13 @@ const routes: Route[] = [
 
 class AppSwitch extends Switch.Element {
   constructor() {
-    super(routes, HISTORY_KEY, AUTH_KEY);
+    super(routes, HISTORY_CONTEXT, AUTH_CONTEXT);
+  }
+}
+
+class AppStore extends Store.Provider<Model, Msg> {
+  constructor() {
+    super(update, init, AUTH_CONTEXT);
   }
 }
 
@@ -39,8 +47,8 @@ const elements = {
   "mu-auth": Auth.Provider,
   "mu-history": History.Provider,
   "mu-switch": AppSwitch,
+  "mu-store": AppStore,
   "blazing-header": HeaderElement
 } as const;
 
 define(elements);
-

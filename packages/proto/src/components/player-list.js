@@ -80,7 +80,8 @@ export class PlayerList extends LitElement {
 
   applyFilters() {
     const nameQuery = (this.filterName || '').trim().toLowerCase();
-    const teamKey = (this.filterTeam || this.team || '').trim().toLowerCase();
+    const rawTeamKey = (this.filterTeam || this.team || '').trim().toLowerCase();
+    const teamSlugKey = slugifyTeam(this.filterTeam || this.team || '');
     const gameKey = (this.filterGame || '').trim().toLowerCase();
     const map = this.gameTeams || {};
     let list = this.players;
@@ -88,8 +89,12 @@ export class PlayerList extends LitElement {
     if (nameQuery) {
       list = list.filter(p => (p.name || '').toLowerCase().includes(nameQuery));
     }
-    if (teamKey) {
-      list = list.filter(p => (p.team || '').toLowerCase() === teamKey);
+    if (rawTeamKey || teamSlugKey) {
+      list = list.filter(p => {
+        const playerTeam = (p.team || '').trim().toLowerCase();
+        const slug = slugifyTeam(p.teamId || p.team || '');
+        return (rawTeamKey && playerTeam === rawTeamKey) || (teamSlugKey && slug === teamSlugKey);
+      });
     }
     if (gameKey) {
       list = list.filter(p => {
@@ -123,7 +128,11 @@ export class PlayerList extends LitElement {
           <li>
             <div class="player-line">
               <a href="${baseLink}?id=${p.id}"><strong>${p.name}</strong></a>
-              <span class="muted">&middot; ${p.team} &middot; ${p.role}</span>
+              <span class="muted team-meta-line">
+                ${this.renderTeamMeta(p)}
+                <span class="meta-separator" aria-hidden="true">&middot;</span>
+                <span class="team-role">${p.role || 'Flex'}</span>
+              </span>
             </div>
             <span class="player-game">${this.lookupGame(p)}</span>
           </li>
@@ -131,6 +140,27 @@ export class PlayerList extends LitElement {
       </ul>
     `;
   }
+
+  renderTeamMeta(player) {
+    const teamName = (player?.team || '').trim();
+    const teamSlug = slugifyTeam(player?.teamId || player?.team || '');
+    if (!teamName && !teamSlug) return html`<span class="team-tag">Unknown</span>`;
+    return html`
+      <span class="team-meta">
+        ${teamSlug ? html`<code class="team-id">${teamSlug}</code>` : null}
+        ${teamName ? html`<span class="team-tag">${teamName}</span>` : null}
+      </span>
+    `;
+  }
 }
 
 customElements.define('player-list', PlayerList);
+
+function slugifyTeam(value = '') {
+  return value
+    ? value
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '')
+    : '';
+}

@@ -13,6 +13,7 @@ import {
   getRankings,
 } from './vlrgg';
 import { slugify } from '../utils/text';
+import { ensureTeamTag } from '../utils/team-tags';
 
 const DEFAULT_REGIONS = ['na', 'eu', 'ap', 'br', 'latam', 'kr'];
 const DEFAULT_MATCH_QUERIES: MatchQuery[] = ['upcoming', 'live_score', 'results'];
@@ -78,6 +79,7 @@ async function syncTeams(regions: string[]): Promise<number> {
       const payload = {
         id,
         name: entry.team,
+        tag: ensureTeamTag({ name: entry.team, id }),
         region,
         game: 'Valorant',
         rank: parseNumber(entry.rank),

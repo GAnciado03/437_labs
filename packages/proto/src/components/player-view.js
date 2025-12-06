@@ -1,6 +1,7 @@
 import { LitElement, html, unsafeCSS } from 'lit';
-import { apiUrl, apiFetch } from '../utils/api.ts';
+import { apiFetch, apiUrl } from '../utils/api.ts';
 import playerViewStyles from '../../styles/player-view.css?inline';
+import './stat-card.js';
 
 export class PlayerView extends LitElement {
   static styles = unsafeCSS(playerViewStyles);
@@ -8,324 +9,377 @@ export class PlayerView extends LitElement {
   static properties = {
     src: { type: String },
     id: { type: String, reflect: true },
-    player: { state: true },
+    players: { state: true },
+    selected: { state: true },
     loading: { state: true },
     error: { state: true },
+    favorites: { state: true },
     filterType: { state: true },
     filterValue: { state: true },
-    gameOptions: { state: true },
     teamOptions: { state: true },
-    gameTeams: { state: true },
-    teamSearch: { state: true }
+    gameOptions: { state: true }
   };
 
   constructor() {
     super();
     this.src = '/api/players';
     this.id = '';
-    this.player = undefined;
-    this.loading = false;
-    this.error = null;
-    this.filterType = 'all';
-    this.filterValue = '';
-    this.gameOptions = [];
-    this.teamOptions = [];
-    this.gameTeams = {};
     this.players = [];
-    this.teamSearch = '';
-    this.teamOptionsId = `team-options-${Math.random().toString(36).slice(2)}`;
+    this.selected = null;
+    this.loading = false;
+    this.error = '';
+    this.favorites = [];
+    this._lastFetchedSrc = '';
+    this.filterType = 'player';
+    this.filterValue = '';
+    this.teamOptions = [];
+    this.gameOptions = [];
   }
 
   connectedCallback() {
     super.connectedCallback();
-    const url = new URL(location.href);
-    const urlId = url.searchParams.get('id') || '';
-    const teamParam = url.searchParams.get('team') || '';
+    const urlId = new URL(location.href).searchParams.get('id') || '';
     if (!this.id && urlId) this.id = urlId;
-    if (teamParam) {
-      this.filterType = 'team';
-      this.filterValue = teamParam;
-      this.teamSearch = teamParam;
+    this.loadFavorites();
+    this.fetchPlayers();
+  }
+
+  updated(changed) {
+    if (changed.has('src')) {
+      if (this.src && this.src !== this._lastFetchedSrc) {
+        this.fetchPlayers();
+      }
+    }
+    if ((changed.has('players') && this.players.length) || changed.has('id')) {
+      this.syncSelected();
     }
   }
 
-  willUpdate(changed) {
-    if (changed.has('src') || changed.has('id')) {
-      this.fetchData();
-    }
+  get filteredPlayers() {
+    const value = (this.filterValue || '').trim().toLowerCase();
+    if (!value) return this.players;
+    return this.players.filter((player) => {
+      if (this.filterType === 'team') {
+        return (player.team || '').toLowerCase() === value;
+      }
+      if (this.filterType === 'game') {
+        return (player.game || '').toLowerCase() === value;
+      }
+      return (player.name || '').toLowerCase().includes(value);
+    });
   }
 
-  resolveSrc(value) {
-    if (!value) return '';
-    if (value.startsWith('http')) return value;
-    if (value.startsWith('/api/')) return apiUrl(value);
-    return value;
-  }
-
-  async fetchData() {
+  async fetchPlayers() {
     if (!this.src) return;
-    const useApi = this.src.startsWith('/api/');
-    const target = this.resolveSrc(this.src);
+    this._lastFetchedSrc = this.src;
     this.loading = true;
-    this.error = null;
-    this.player = undefined;
+    this.error = '';
     try {
-      const res = await (useApi ? apiFetch(target) : fetch(target));
+      const target = this.resolveSrc(this.src);
+      const useApi = target.startsWith('/api/');
+      const res = await (useApi ? apiFetch(apiUrl(target)) : fetch(target));
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const payload = await res.json();
-      const list = Array.isArray(payload)
-        ? payload
-        : payload
-          ? [payload]
-          : [];
-      this.players = list;
-      this.buildFilterOptions(list);
-      const key = (this.id || '').toLowerCase();
-      const found = list.find(p => (p.id || '').toLowerCase() === key);
-      this.player = found || list[0];
+      this.players = Array.isArray(payload) ? payload : payload ? [payload] : [];
+      this.buildFilterOptions();
     } catch (err) {
-      this.error = String(err);
+      this.error = err instanceof Error ? err.message : String(err);
+      this.players = [];
     } finally {
       this.loading = false;
     }
   }
 
-  buildFilterOptions(list) {
-    const teamMap = new Map();
-    const gameMap = new Map();
-    const lookup = {};
-    list.forEach(p => {
-      const teamName = (p.team || '').trim();
-      if (teamName) {
-        const key = teamName.toLowerCase();
-        if (!teamMap.has(key)) teamMap.set(key, { id: teamName, label: teamName });
-        const gameName = (p.game || '').trim() || 'Valorant';
-        lookup[key] = gameName;
-        const gameKey = gameName.toLowerCase();
-        if (!gameMap.has(gameKey)) gameMap.set(gameKey, { id: gameName, title: gameName });
-      }
-    });
-    this.teamOptions = Array.from(teamMap.values()).sort((a, b) =>
-      a.label.localeCompare(b.label, undefined, { sensitivity: 'base' })
-    );
-    this.gameOptions = Array.from(gameMap.values()).sort((a, b) =>
-      a.title.localeCompare(b.title, undefined, { sensitivity: 'base' })
-    );
-    this.gameTeams = lookup;
+  resolveSrc(value) {
+    if (!value) return '';
+    if (value.startsWith('http')) {
+      const url = new URL(value);
+      return url.pathname + url.search;
+    }
+    return value;
   }
 
-  getFilteredTeamOptions() {
-    const q = this.teamSearch.trim().toLowerCase();
-    if (!q) return this.teamOptions;
-    return this.teamOptions.filter(opt =>
-      opt.label?.toLowerCase().includes(q) || opt.id?.toLowerCase().includes(q)
-    );
-  }
-
-  handleTeamSearchChange(event) {
-    const value = event.target.value || '';
-    this.teamSearch = value;
-    if (!value) {
-      this.filterValue = '';
+  syncSelected() {
+    if (!this.players.length) {
+      this.selected = null;
       return;
     }
-    const match = this.teamOptions.find(
-      opt => opt.id.toLowerCase() === value.toLowerCase() || opt.label?.toLowerCase() === value.toLowerCase()
-    );
-    if (match) {
-      this.filterValue = match.id;
-    }
+    const current = (this.id || '').toLowerCase();
+    const found = this.players.find((player) => (player.id || '').toLowerCase() === current);
+    this.selected = found || this.players[0];
   }
 
-  handleTeamSelectChange(event) {
-    const value = event.target.value || '';
-    this.filterValue = value;
-    this.teamSearch = value;
-  }
+  handleSearchInput = (event) => {
+    this.filterValue = (event.target?.value || '').slice(0, 60);
+  };
 
-  handleFilterTypeChange(event) {
-    const next = event.target.value;
-    this.filterType = next;
-    if (next === 'all') {
-      this.filterValue = '';
-      this.teamSearch = '';
-    }
-    if (next === 'team') {
-      this.teamSearch = this.filterValue;
-    }
-  }
-
-  handleFilterValueChange(event) {
-    this.filterValue = event.target.value;
-  }
-
-  clearFilter() {
-    this.filterType = 'all';
+  handleFilterTypeChange = (event) => {
+    this.filterType = event.target.value;
     this.filterValue = '';
-    const url = new URL(location.href);
-    url.searchParams.delete('team');
-    history.replaceState(null, '', url.toString());
+  };
+
+  clearFilters = () => {
+    this.filterType = 'player';
+    this.filterValue = '';
+  };
+
+  handleSelectOption(event) {
+    this.filterValue = event.target.value || '';
   }
 
-  renderFilterControl() {
-    if (this.filterType === 'name') {
-      return html`
-        <label class="filter-field">
-          <span class="sr-only">Player name</span>
-          <input
-            type="text"
-            placeholder="Search player name"
-            .value=${this.filterValue}
-            @input=${this.handleFilterValueChange}
-          />
-        </label>
-      `;
+  handleSelect(player, event) {
+    event?.preventDefault();
+    if (!player?.id) return;
+    this.id = player.id;
+    this.updateHistory(player.id);
+  }
+
+  updateHistory(id) {
+    try {
+      const url = new URL(location.href);
+      url.searchParams.set('id', id);
+      history.replaceState(null, '', url.toString());
+    } catch {
+      /* ignore */
     }
-    if (this.filterType === 'team') {
-      const listId = this.teamOptionsId;
-      const filteredTeams = this.getFilteredTeamOptions();
-      return html`
-        <label class="filter-field team-filter">
-          <span class="sr-only">Team</span>
-          <div class="team-filter-row">
-            <select
-              class="team-select"
-              .value=${this.filterValue}
-              @change=${this.handleTeamSelectChange}
+  }
+
+  loadFavorites() {
+    try {
+      const raw = localStorage.getItem('favPlayers');
+      const parsed = raw ? JSON.parse(raw) : [];
+      this.favorites = Array.isArray(parsed) ? parsed : [];
+    } catch {
+      this.favorites = [];
+    }
+  }
+
+  isFavorite(id) {
+    if (!id) return false;
+    const target = id.toLowerCase();
+    return this.favorites.some((fav) => fav.toLowerCase() === target);
+  }
+
+  async toggleFavorite() {
+    const player = this.selected;
+    if (!player?.id) return;
+    const authed = Boolean(localStorage.getItem('token'));
+    if (!authed) {
+      location.href = 'login.html';
+      return;
+    }
+    try {
+      const token = localStorage.getItem('token') || '';
+      const meRes = await fetch(apiUrl('/api/me'), { headers: { Authorization: `Bearer ${token}` } });
+      const me = meRes.ok ? await meRes.json() : { favPlayers: this.favorites };
+      const favs = Array.isArray(me.favPlayers) ? me.favPlayers : this.favorites;
+      const exists = favs.includes(player.id);
+      const next = exists ? favs.filter((item) => item !== player.id) : [...new Set([...favs, player.id])];
+      await fetch(apiUrl('/api/me'), {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ favPlayers: next })
+      });
+      localStorage.setItem('favPlayers', JSON.stringify(next));
+      this.favorites = next;
+    } catch {
+      /* ignore */
+    }
+  }
+
+  buildFilterOptions() {
+    const teamSet = new Set();
+    const gameSet = new Set();
+    this.players.forEach((player) => {
+      const team = (player.team || '').trim();
+      if (team) teamSet.add(team);
+      const game = (player.game || '').trim();
+      if (game) gameSet.add(game);
+    });
+    this.teamOptions = Array.from(teamSet).sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
+    this.gameOptions = Array.from(gameSet).sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
+  }
+
+  renderFilters() {
+    const value = this.filterValue;
+    return html`
+      <div class="filter-panel">
+        <label>
+          Filter Type
+          <select .value=${this.filterType} @change=${this.handleFilterTypeChange}>
+            <option value="player">Player Name</option>
+            <option value="team">Team</option>
+            <option value="game">Game</option>
+          </select>
+        </label>
+        ${this.renderFilterControl(value)}
+        <button class="clear-btn" type="button" @click=${this.clearFilters}>Reset</button>
+      </div>
+      <div class="filter-results" role="listbox" aria-label="Player results">
+        ${this.filteredPlayers.map((player) => {
+          const active = this.selected?.id === player.id;
+          return html`
+            <button
+              type="button"
+              class=${active ? 'result-item active' : 'result-item'}
+              @click=${(event) => this.handleSelect(player, event)}
+              aria-selected=${String(active)}
             >
-              <option value="">Select team</option>
-              ${filteredTeams.map(opt => html`
-                <option value=${opt.id}>${opt.label}</option>
-              `)}
-            </select>
-            <input
-              type="text"
-              class="team-search combo-input"
-              placeholder="Search team"
-              list=${listId}
-              .value=${this.teamSearch}
-              @input=${this.handleTeamSearchChange}
-            />
-            <datalist id=${listId}>
-              ${this.teamOptions.map(opt => html`
-                <option value=${opt.id}>${opt.label}</option>
-              `)}
-            </datalist>
-          </div>
+              <span>${player.name}</span>
+              ${this.isFavorite(player.id) ? html`<span class="fav-dot" aria-label="Favorite"></span>` : null}
+            </button>
+          `;
+        })}
+        ${!this.filteredPlayers.length
+          ? html`<p class="muted empty-msg">No players match the current filter.</p>`
+          : null}
+      </div>
+    `;
+  }
+
+  renderFilterControl(value) {
+    if (this.filterType === 'team') {
+      return html`
+        <label>
+          Team
+          <select .value=${value} @change=${(event) => this.handleSelectOption(event)}>
+            <option value="">All teams</option>
+            ${this.teamOptions.map((team) => html`<option value=${team}>${team}</option>`)}
+          </select>
         </label>
       `;
     }
     if (this.filterType === 'game') {
       return html`
-        <label class="filter-field">
-          <span class="sr-only">Game</span>
-          <select .value=${this.filterValue} @change=${this.handleFilterValueChange}>
-            <option value="">Select game</option>
-            ${this.gameOptions.map(opt => html`
-              <option value=${opt.id}>${opt.title}</option>
-            `)}
+        <label>
+          Game
+          <select .value=${value} @change=${(event) => this.handleSelectOption(event)}>
+            <option value="">All games</option>
+            ${this.gameOptions.map((game) => html`<option value=${game}>${game}</option>`)}
           </select>
         </label>
       `;
     }
-    return null;
+    return html`
+      <label>
+        Search
+        <input
+          type="search"
+          placeholder="Find a player"
+          .value=${value}
+          @input=${this.handleSearchInput}
+        />
+      </label>
+    `;
+  }
+
+  renderStats(player) {
+    const s = player?.stats || {};
+    const cards = [
+      {
+        label: 'K/D/A',
+        value: s.kda ?? '—',
+        icon: 'insights',
+        accent: '#2563eb',
+        footer: 'Last 10 games'
+      },
+      {
+        label: 'Win Rate',
+        value: s.winRate != null ? String(s.winRate) : '—',
+        unit: s.winRate != null ? '%' : '',
+        icon: 'trending_up',
+        accent: '#10b981'
+      },
+      {
+        label: 'Matches Played',
+        value: s.matches != null ? String(s.matches) : '—',
+        icon: 'confirmation_number',
+        accent: '#f59e0b'
+      }
+    ];
+    return html`
+      <div class="stats-grid">
+        ${cards.map(
+          (card) => html`
+            <stat-card
+              label=${card.label}
+              .value=${card.value}
+              icon=${card.icon}
+              accent=${card.accent}
+              unit=${card.unit || ''}
+            >
+              ${card.footer ? html`<span slot="footer">${card.footer}</span>` : null}
+            </stat-card>
+          `
+        )}
+      </div>
+    `;
+  }
+
+  renderDetail() {
+    const player = this.selected;
+    if (!player) {
+      return html`<article class="card empty"><p class="muted">Select a player from the roster.</p></article>`;
+    }
+    const isFav = this.isFavorite(player.id);
+    return html`
+      <article class="card">
+        <header>
+          <div>
+            <p class="eyebrow">${player.team || 'Free Agent'}</p>
+            <h2>${player.name}</h2>
+          </div>
+          <button class="fav ${isFav ? 'active' : ''}" @click=${this.toggleFavorite}>
+            ${isFav ? 'Favorited' : 'Favorite'}
+          </button>
+        </header>
+        <dl class="meta-grid">
+          <div>
+            <dt>Team</dt>
+            <dd>
+              ${player.team
+                ? html`<a href="team.html?id=${encodeURIComponent(player.team)}">${player.team}</a>`
+                : 'Free Agent'}
+            </dd>
+          </div>
+          <div>
+            <dt>Game</dt>
+            <dd>${player.game || 'Valorant'}</dd>
+          </div>
+          <div>
+            <dt>Role</dt>
+            <dd>${player.role || 'Flex'}</dd>
+          </div>
+        </dl>
+        ${this.renderStats(player)}
+      </article>
+    `;
   }
 
   render() {
-    if (this.loading) return html`<p class="muted">Loading...</p>`;
-    if (this.error) return html`<p class="muted">Error: ${this.error}</p>`;
-    if (!this.player) return html`<p class="muted">No player found.</p>`;
-    const p = this.player;
-    const id = p.id;
-    const value = this.filterValue.trim();
-    let filterName = '';
-    let filterTeam = '';
-    let filterGame = '';
-    if (this.filterType === 'name') filterName = value;
-    if (this.filterType === 'team') filterTeam = value;
-    if (this.filterType === 'game') filterGame = value;
-
-    const authed = Boolean(localStorage.getItem('token'));
-    const favKey = 'favPlayers';
-    const localFavs = JSON.parse(localStorage.getItem(favKey) || '[]');
-    const isFav = localFavs.includes(id);
-
-    const toggleFav = async () => {
-      if (!authed) {
-        location.href = 'login.html';
-        return;
-      }
-      try {
-        const token = localStorage.getItem('token') || '';
-        const meRes = await fetch(apiUrl('/api/me'), { headers: { Authorization: `Bearer ${token}` } });
-        const me = meRes.ok ? await meRes.json() : { favPlayers: localFavs };
-        const favs = Array.isArray(me.favPlayers) ? me.favPlayers : localFavs;
-        const next = isFav ? favs.filter(x => x !== id) : [...new Set([...favs, id])];
-        await fetch(apiUrl('/api/me'), {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`
-          },
-          body: JSON.stringify({ favPlayers: next })
-        });
-        localStorage.setItem(favKey, JSON.stringify(next));
-      } catch {
-        /* ignore */
-      }
-      this.requestUpdate();
-    };
+    if (this.loading) return html`<main class="container"><p class="muted">Loading players...</p></main>`;
+    if (this.error) return html`<main class="container"><p class="muted">${this.error}</p></main>`;
 
     return html`
-      <main>
+      <main class="container">
         <nav class="back-links">
           <a href="index.html" data-back-link data-back-fallback="index.html">Back</a>
-          <span class="divider" aria-hidden="true">·</span>
+          <span class="divider" aria-hidden="true">&middot;</span>
           <a href="index.html">Back to Home</a>
         </nav>
         <h1>Players</h1>
-        <div class="actions">
-          <button class="fav ${isFav ? 'active' : ''}" @click=${toggleFav}>
-            ${isFav ? 'Favorited' : 'Favorite'}
-          </button>
-        </div>
-        <p>Player: <a href="stats.html?id=${id}">${p.name}</a></p>
-        <p>Team: <a href="team.html?id=${encodeURIComponent(p.team)}">${p.team}</a></p>
-        <p>Game: ${p.game || 'Valorant'}</p>
-        <section class="filter-panel">
-          <label>
-            Filter
-            <select .value=${this.filterType} @change=${this.handleFilterTypeChange}>
-              <option value="all">All Players</option>
-              <option value="name">By Player Name</option>
-              <option value="team">By Team</option>
-              <option value="game">By Game</option>
-            </select>
-          </label>
-          ${this.renderFilterControl()}
-          ${this.filterType !== 'all' ? html`
-            <button type="button" class="mono" @click=${this.clearFilter}>Clear</button>
-          ` : null}
+        <section class="layout">
+          <aside>
+            <h2>Filters</h2>
+            ${this.renderFilters()}
+          </aside>
+          <div class="content">
+            ${this.renderDetail()}
+          </div>
         </section>
-        <p class="muted">
-          ${this.filterType === 'name' && value
-            ? html`Showing players matching "<strong>${value}</strong>".`
-            : this.filterType === 'team' && value
-              ? html`Showing roster for ${value}.`
-              : this.filterType === 'game' && value
-                ? html`Showing players competing in ${value}.`
-                : html`Showing all players.`}
-        </p>
-
-        <div class="list-box" role="region" aria-label="Player list">
-          <player-list
-            src="/api/players"
-            .gameTeams=${this.gameTeams}
-            .filterName=${filterName}
-            .filterTeam=${filterTeam}
-            .filterGame=${filterGame}
-          ></player-list>
-        </div>
       </main>
     `;
   }

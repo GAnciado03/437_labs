@@ -23,6 +23,34 @@ li {
     var(--shadow-sm, 0 1px 2px rgba(0, 0, 0, 0.08))
   );
 }
+.team-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex: 1;
+  gap: 0.75rem;
+}
+.team-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+.team-name {
+  font-size: 0.85rem;
+}
+.team-id {
+  font-family: var(--font-mono, 'JetBrains Mono', 'SFMono-Regular', Consolas, monospace);
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  background: var(--chip-bg, rgba(15, 23, 42, 0.08));
+  color: var(--color-chip-text, #111827);
+}
+:host-context(body.dark) .team-id {
+  background: rgba(255, 255, 255, 0.05);
+  color: #e5e7eb;
+}
 .muted {
   color: var(--color-muted, #666);
 }

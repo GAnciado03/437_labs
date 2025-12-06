@@ -40,12 +40,14 @@
   <body>
     <mu-history provides="app:history">
       <mu-auth provides="app:auth" redirect="/login.html">
-        <article class="page">
-          <blazing-header></blazing-header>
-          <section class="page-body">
-            <mu-switch></mu-switch>
-          </section>
-        </article>
+        <mu-store provides="app:model">
+          <article class="page">
+            <blazing-header></blazing-header>
+            <section class="page-body">
+              <mu-switch></mu-switch>
+            </section>
+          </article>
+        </mu-store>
       </mu-auth>
     </mu-history>
   </body>

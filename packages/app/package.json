@@ -16,7 +16,8 @@
   "type": "commonjs",
   "dependencies": {
     "@calpoly/mustang": "^0.1.13",
-    "lit": "^3.3.1"
+    "lit": "^3.3.1",
+    "server": "workspace:*"
   },
   "devDependencies": {
     "tsc": "^2.0.4",

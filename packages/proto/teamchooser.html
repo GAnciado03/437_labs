@@ -12,33 +12,7 @@
     <link rel="icon" type="image/x-icon" href="icons/favicon.ico" />
     <script type="module" src="/scripts/theme.js"></script>
     <script type="module" src="/scripts/user-button.js"></script>
-    <script type="module" src="/src/components/team-list.js"></script>
     <script type="module" src="/src/components/team-chooser.ts"></script>
-    <style>
-      .filter-bar {
-        display: flex;
-        gap: var(--space-2);
-        justify-content: center;
-        margin: var(--space-2) 0;
-      }
-      .filter-btn {
-        padding: .45rem .85rem;
-        border-radius: var(--radius-sm, 6px);
-        border: 1px solid var(--color-border, #e5e7eb);
-        background: var(--color-surface, #fff);
-        color: var(--color-text, #111);
-        font-weight: 600;
-        letter-spacing: .3px;
-        cursor: pointer;
-        transition: background .15s ease, color .15s ease, border-color .15s ease;
-      }
-      .filter-btn:hover { filter: brightness(0.98); }
-      .filter-btn.active {
-        background: var(--color-accent);
-        border-color: var(--color-accent);
-        color: var(--color-accent-contrast);
-      }
-    </style>
   </head>
   <body>
     <div class="page-shell">

@@ -6,6 +6,7 @@ export interface Player extends Document {
   team: string;
   role: string;
   game?: string;
+  bio?: string;
   kda?: string;
   achievements?: string[];
   stats?: {
@@ -51,6 +52,7 @@ const PlayerSchema = new Schema<Player>(
     team: { type: String, required: true },
     role: { type: String, default: 'Flex' },
     game: { type: String, default: 'Valorant' },
+    bio: { type: String },
     kda: { type: String },
     achievements: { type: [String], default: [] },
     stats: { type: StatsSchema, default: undefined },

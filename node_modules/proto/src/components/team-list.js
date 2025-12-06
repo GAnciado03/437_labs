@@ -10,10 +10,10 @@ export class TeamList extends LitElement {
     game: { type: String },
     limit: { type: Number },
     query: { type: String },
-    hideRegion: { type: Boolean, attribute: 'hide-region' },
     teams: { state: true },
     loading: { state: true },
-    error: { state: true }
+    error: { state: true },
+    selectedTeam: { state: true }
   };
 
   constructor() {
@@ -21,15 +21,17 @@ export class TeamList extends LitElement {
     this.src = '/api/teams';
     this.game = '';
     this.limit = 1200;
-    this.hideRegion = false;
     this.query = '';
     this.teams = [];
     this.loading = false;
     this.error = null;
+    this.selectedTeam = null;
   }
 
   willUpdate(changed) {
-    if (changed.has('src') || changed.has('game') || changed.has('limit') || changed.has('query')) this.fetchData();
+    if (changed.has('src') || changed.has('game') || changed.has('limit') || changed.has('query')) {
+      this.fetchData();
+    }
   }
 
   async fetchData() {
@@ -39,10 +41,10 @@ export class TeamList extends LitElement {
     try {
       const target = this.buildTarget();
       const res = await this.performFetch(target);
-      if (res.status === 401) throw new Error('Please log in to view teams.');
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       this.teams = Array.isArray(data) ? data : [];
+      if (this.teams.length) this.selectedTeam = this.teams[0];
     } catch (err) {
       this.error = String(err);
     } finally {
@@ -86,18 +88,39 @@ export class TeamList extends LitElement {
     if (this.error) return html`<p class="muted">Error: ${this.error}</p>`;
     if (!this.teams.length) return html`<p class="muted">No teams found.</p>`;
     return html`
-      <ul>
-        ${this.teams.map(t => html`
-          <li>
-            <svg class="icon" aria-hidden="true" style="width: 20px; height: 20px">
-              <use href="icons/icons.svg#icon-team"></use>
-            </svg>
-            <a href="team.html?id=${encodeURIComponent(t.id)}">${t.name}</a>
-            ${!this.hideRegion && t.region ? html`<span class="muted">&middot; ${t.region}</span>` : null}
-          </li>
-        `)}
-      </ul>
+      <div class="team-layout">
+        <ul class="team-list">
+          ${this.teams.map((team) => this.renderTeamItem(team))}
+        </ul>
+        <section class="detail-panel" aria-live="polite">
+          ${this.selectedTeam ? html`<team-roster .team=${this.selectedTeam}></team-roster>` : this.renderPlaceholder()}
+        </section>
+      </div>
     `;
+  }
+
+  renderTeamItem(team) {
+    const label = team?.tag || team?.name || team?.id;
+    const isActive = this.selectedTeam?.id === team.id;
+    return html`
+      <li>
+        <button
+          type="button"
+          class=${isActive ? 'team-link active' : 'team-link'}
+          @click=${() => (this.selectedTeam = team)}
+        >
+          <span class="team-label">
+            <strong>${label}</strong>
+            ${team?.name && team?.name !== label ? html`<span class="muted">${team.name}</span>` : null}
+          </span>
+          <code>${team.id}</code>
+        </button>
+      </li>
+    `;
+  }
+
+  renderPlaceholder() {
+    return html`<div class="placeholder"><p class="muted">Select a team to view its roster.</p></div>`;
   }
 }
 

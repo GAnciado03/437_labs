@@ -1,71 +1,37 @@
-﻿import { LitElement, css, html } from "lit";
-import { apiFetch, apiUrl } from "../utils/api";
+import { View } from "@calpoly/mustang";
+import { css, html } from "lit";
+import type { Player } from "server/models";
+import { MODEL_CONTEXT } from "../contexts";
+import type { Model } from "../model";
+import type { Msg } from "../messages";
 
-type Player = {
-  id: string;
-  name: string;
-  team?: string;
-  game?: string;
-};
-
-export class FavoritesViewElement extends LitElement {
-  static properties = {
-    loading: { state: true },
-    error: { state: true },
-    players: { state: true }
-  } as const;
-
-  loading = false;
-  error = "";
-  players: Player[] = [];
+export class FavoritesViewElement extends View<Model, Msg> {
+  constructor() {
+    super(MODEL_CONTEXT);
+  }
 
   connectedCallback() {
     super.connectedCallback();
-    this.loadFavorites();
+    this.dispatchMessage(["favorites/init"]);
+    this.dispatchMessage(["players/request"]);
   }
 
-  private getFavoriteIds(): string[] {
-    try {
-      const value = localStorage.getItem("favPlayers");
-      const parsed = value ? JSON.parse(value) : [];
-      return Array.isArray(parsed) ? parsed : [];
-    } catch {
-      return [];
-    }
+  private get favorites(): string[] {
+    return this.model.favorites ?? [];
   }
 
-  async loadFavorites() {
-    const ids = this.getFavoriteIds();
-    if (!ids.length) {
-      this.players = [];
-      return;
-    }
-    this.loading = true;
-    this.error = "";
-    try {
-      const responses = await Promise.all(
-        ids.map((id) => apiFetch(apiUrl(`/api/players/${id}`)))
-      );
-      const players: Player[] = [];
-      for (const res of responses) {
-        if (res.status === 401) {
-          throw new Error("Please log in to view favorites.");
-        }
-        if (!res.ok) continue;
-        players.push(await res.json());
-      }
-      this.players = players;
-    } catch (err) {
-      this.error = err instanceof Error ? err.message : String(err);
-    } finally {
-      this.loading = false;
-    }
+  private get favoritePlayers(): Player[] {
+    if (!this.favorites.length) return [];
+    const favoriteIds = new Set(
+      this.favorites.map((fav) => fav.toLowerCase())
+    );
+    return this.model.players.filter((player) =>
+      favoriteIds.has((player.id || "").toLowerCase())
+    );
   }
 
   render() {
-    if (this.loading) return html`<p class="muted">Loading favorites.</p>`;
-    if (this.error) return html`<p class="muted">${this.error}</p>`;
-    if (!this.players.length) {
+    if (!this.favorites.length) {
       return html`
         <main>
           <h1>Favorites</h1>
@@ -74,11 +40,32 @@ export class FavoritesViewElement extends LitElement {
       `;
     }
 
+    if (
+      this.model.playersStatus === "loading" ||
+      (this.model.playersStatus === "idle" && !this.model.players.length)
+    ) {
+      return html`<p class="muted">Loading favorites.</p>`;
+    }
+
+    if (this.model.playersStatus === "error") {
+      return html`<p class="muted">${this.model.playersError ?? "Unable to load favorites."}</p>`;
+    }
+
+    const favorites = this.favoritePlayers;
+    if (!favorites.length) {
+      return html`
+        <main>
+          <h1>Favorites</h1>
+          <p>Your favorites will appear once player data finishes syncing. Please try again soon.</p>
+        </main>
+      `;
+    }
+
     return html`
       <main>
         <h1>Favorites</h1>
         <ul class="fav-list">
-          ${this.players.map(
+          ${favorites.map(
             (player) => html`
               <li>
                 <a href=${`/app/players/${player.id}`}>
@@ -124,8 +111,11 @@ export class FavoritesViewElement extends LitElement {
     span {
       color: var(--color-muted, #475569);
     }
+    .muted {
+      color: var(--color-muted, #94a3b8);
+      font-size: 0.9rem;
+    }
   `;
 }
 
 customElements.define("favorites-view", FavoritesViewElement);
-

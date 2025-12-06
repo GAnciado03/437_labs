@@ -3,6 +3,8 @@ import { TeamModel } from '../models/team';
 import { asyncHandler } from '../middleware/error';
 import { requireFields, isEmptyObject } from '../utils/validate';
 import { authenticateUser } from './auth';
+import { ensureTeamTag } from '../utils/team-tags';
+import { slugify } from '../utils/text';
 
 const router = Router();
 
@@ -21,8 +23,9 @@ router.get('/', asyncHandler(async (req: Request, res: Response) => {
     clauses.push({
       $or: [
         { name: new RegExp(query, 'i') },
-        { id: new RegExp(query, 'i') }
-      ]
+        { id: new RegExp(query, 'i') },
+        { tag: new RegExp(query, 'i') },
+      ],
     });
   }
   if (game) {
@@ -43,14 +46,32 @@ router.get('/', asyncHandler(async (req: Request, res: Response) => {
   const limitValue = Math.min(Math.max(Number(limit) || 500, 1), 2000);
   const mongoFilter = clauses.length ? { $and: clauses } : {};
   const teams = await TeamModel.find(mongoFilter).sort({ name: 1 }).limit(limitValue).lean();
-  res.json(teams);
+  const enriched = teams.map((team) => ({
+    ...team,
+    tag: ensureTeamTag(team) || team.tag,
+  }));
+  res.json(enriched);
 }));
 
 // GET /api/teams/:id
 router.get('/:id', asyncHandler(async (req: Request, res: Response) => {
-  const team = await TeamModel.findOne({ id: req.params.id }).lean();
+  const raw = req.params.id;
+  const safe = escapeRegex(raw);
+  const slug = slugify(raw);
+  const team = await TeamModel.findOne({
+    $or: [
+      { id: raw },
+      { id: slug },
+      { tag: raw },
+      { name: new RegExp(`^${safe}$`, 'i') },
+      { tag: new RegExp(`^${safe}$`, 'i') },
+    ],
+  }).lean();
   if (!team) return res.status(404).json({ error: 'Not found' });
-  res.json(team);
+  res.json({
+    ...team,
+    tag: ensureTeamTag(team) || team.tag,
+  });
 }));
 
 // POST /api/teams
@@ -81,3 +102,7 @@ router.delete('/:id', asyncHandler(async (req: Request, res: Response) => {
 }));
 
 export default router;
+
+function escapeRegex(value: string) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}

@@ -39,6 +39,36 @@ li {
   margin-left: auto;
   text-transform: capitalize;
 }
+.team-meta-line {
+  display: inline-flex;
+  gap: 0.35rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.team-meta {
+  display: inline-flex;
+  gap: 0.35rem;
+  align-items: center;
+}
+.team-id {
+  font-family: var(--font-mono, 'JetBrains Mono', 'SFMono-Regular', Consolas, monospace);
+  padding: 0.05rem 0.4rem;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.08);
+  font-size: 0.8rem;
+}
+:host-context(body.dark) .team-id {
+  background: rgba(255, 255, 255, 0.08);
+}
+.team-tag {
+  font-weight: 600;
+}
+.team-role {
+  font-weight: 500;
+}
+.meta-separator {
+  color: var(--color-muted, #666);
+}
 strong {
   color: var(--color-heading, #111);
 }

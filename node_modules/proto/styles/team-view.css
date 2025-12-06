@@ -1,78 +1,252 @@
 :host {
   display: block;
-}
-.muted {
-  color: var(--color-muted, #666);
-}
-h1 {
-  text-align: center;
-  margin-bottom: var(--space-3, 1rem);
-}
-.meta,
-h2 {
-  text-align: center;
-}
-.list-box {
-  border: 1px solid var(--color-border, #e5e7eb);
-  border-radius: var(--radius-md, 12px);
-  padding: 0.5rem 0.75rem;
-  background: var(--color-surface, #fff);
-  max-height: min(60vh, 600px);
-  overflow-y: auto;
-  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
-  margin-top: var(--space-3, 1rem);
-}
-:host-context(body.dark) .list-box {
-  background: #111827;
-  border-color: #1f2937;
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.03);
-}
-.actions {
-  display: flex;
-  gap: 0.75rem;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: var(--space-2);
-}
-button.fav {
-  padding: 0.45rem 0.85rem;
-  border-radius: var(--radius-sm, 6px);
-  border: 1px solid var(--color-border, #e5e7eb);
-  background: var(--color-surface, #fff);
-  color: var(--color-text, #111);
-  font-weight: 600;
-  letter-spacing: 0.3px;
-  cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease,
-    filter 0.15s ease;
-}
-button.fav:hover {
-  filter: brightness(0.98);
-}
-:host-context(body.dark) button.fav {
-  color: #e5e7eb;
-}
-:host-context(body:not(.dark)) button.fav {
-  color: #111;
-}
-button.fav.active {
-  background: var(--color-accent);
-  border-color: var(--color-accent);
-  color: var(--color-accent-contrast);
-}
-:host-context(body.dark) button.fav.active {
-  color: #fff;
-}
-:host-context(body:not(.dark)) button.fav.active {
-  color: #111;
-}
-button.fav[disabled] {
-  opacity: 0.6;
-  cursor: not-allowed;
+  color: var(--color-text, #0f172a);
 }
 
-@media (max-width: 768px) {
-  .list-box {
-    max-height: none;
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: var(--space-3, 1rem) var(--space-3, 1.25rem);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3, 1rem);
+}
+
+.back-links {
+  display: flex;
+  gap: 0.35rem;
+  font-weight: 600;
+  align-self: flex-start;
+  margin-top: 0;
+}
+
+.divider {
+  color: var(--color-muted, #94a3b8);
+}
+
+h1 {
+  margin: 0 auto var(--space-3, 1.5rem);
+  text-align: center;
+  font-size: clamp(2rem, 1.5rem + 2vw, 2.75rem);
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(200px, 300px) minmax(0, 1fr);
+  gap: var(--space-5, 3rem);
+  width: 100%;
+}
+
+aside {
+  border-right: 1px solid var(--color-border, #e2e8f0);
+  padding-right: var(--space-3, 1.25rem);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+aside h2 {
+  margin: 0;
+}
+
+.game-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.game-chip {
+  border: 1px solid var(--color-border, #e2e8f0);
+  background: transparent;
+  color: inherit;
+  font-weight: 600;
+  padding: 0.4rem 0.9rem;
+  border-radius: 999px;
+  cursor: pointer;
+  text-align: left;
+}
+
+.game-chip.active {
+  background: var(--color-accent, #4f46e5);
+  color: var(--color-accent-contrast, #fff);
+  border-color: transparent;
+}
+
+.region-card {
+  border: 1px solid var(--color-border, #e2e8f0);
+  border-radius: 14px;
+  padding: 0.75rem 1rem;
+  background: var(--color-surface, #fff);
+}
+
+.region-card dt {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-muted, #94a3b8);
+  margin: 0 0 0.25rem;
+}
+
+.region-card dd {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.content {
+  width: 100%;
+}
+
+.card {
+  background: var(--color-surface, #fff);
+  border: 1px solid var(--color-border, #e2e8f0);
+  border-radius: 18px;
+  padding: var(--space-4, 2rem);
+  box-shadow: var(--shadow-lg, 0 35px 65px rgba(15, 23, 42, 0.08));
+}
+
+:host-context(body.dark) .card {
+  background: rgba(15, 23, 42, 0.75);
+  border-color: rgba(148, 163, 184, 0.2);
+  box-shadow: 0 35px 65px rgba(2, 6, 23, 0.85);
+}
+
+.card header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1.25rem;
+  margin-bottom: var(--space-3, 1.5rem);
+}
+
+.eyebrow {
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  color: var(--color-muted, #94a3b8);
+  margin: 0 0 0.3rem;
+}
+
+.card h2 {
+  margin: 0;
+  font-size: clamp(1.75rem, 1.4rem + 1vw, 2.35rem);
+}
+
+.fav {
+  border: 1px solid var(--color-border, #e2e8f0);
+  border-radius: 999px;
+  padding: 0.45rem 1.2rem;
+  font-weight: 600;
+  background: transparent;
+  cursor: pointer;
+  color: inherit;
+}
+
+.fav.active {
+  background: var(--color-accent, #4f46e5);
+  color: var(--color-accent-contrast, #fff);
+  border-color: transparent;
+}
+
+.meta-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: var(--space-4, 2rem);
+}
+
+.meta-grid dt {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-muted, #94a3b8);
+  margin-bottom: 0.25rem;
+}
+
+.meta-grid dd {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.roster-panel {
+  margin-top: var(--space-4, 2rem);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.roster-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.roster-head h3 {
+  margin: 0;
+}
+
+.roster-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.65rem;
+}
+
+.roster-list li {
+  border: 1px solid var(--color-border, #e2e8f0);
+  border-radius: 12px;
+  padding: 0.65rem 0.95rem;
+  background: rgba(15, 23, 42, 0.02);
+}
+
+.roster-list a {
+  display: flex;
+  justify-content: space-between;
+  color: inherit;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.roster-list a span {
+  font-weight: 500;
+  color: var(--color-muted, #94a3b8);
+}
+
+.muted {
+  color: var(--color-muted, #94a3b8);
+}
+
+:host-context(body.dark) .game-chip {
+  border-color: #1f2937;
+  color: #e2e8f0;
+}
+
+:host-context(body.dark) .game-chip.active {
+  background: var(--color-accent, #6366f1);
+  color: #fff;
+}
+
+:host-context(body.dark) .region-card {
+  background: rgba(15, 23, 42, 0.7);
+  border-color: rgba(148, 163, 184, 0.2);
+}
+
+:host-context(body.dark) .roster-list li {
+  border-color: rgba(148, 163, 184, 0.25);
+  background: rgba(15, 23, 42, 0.35);
+}
+
+@media (max-width: 960px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+  aside {
+    border-right: none;
+    border-bottom: 1px solid var(--color-border, #e2e8f0);
+    padding-bottom: var(--space-3, 1rem);
   }
 }

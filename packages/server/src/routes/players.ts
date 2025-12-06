@@ -1,8 +1,11 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { PlayerModel } from '../models/player';
+import { TeamModel } from '../models/team';
 import { asyncHandler } from '../middleware/error';
 import { requireFields, isEmptyObject } from '../utils/validate';
 import { authenticateUser } from './auth';
+import { ensureTeamTag } from '../utils/team-tags';
+import { slugify } from '../utils/text';
 
 const router = Router();
 
@@ -15,16 +18,41 @@ router.use((req: Request, res: Response, next: NextFunction) => {
 // Supports filtering: ?team=T1&role=Mid&q=faker
 router.get('/', asyncHandler(async (req: Request, res: Response) => {
   const { team, role, q, game } = req.query as { team?: string; role?: string; q?: string; game?: string };
-  const filter: any = {};
-  if (team) filter.team = team;
-  if (role) filter.role = role;
-  if (game) filter.game = game;
-  if (q) filter.$or = [
-    { name: new RegExp(String(q), 'i') },
-    { id: new RegExp(String(q), 'i') }
-  ];
+  const clauses: any[] = [];
+
+  if (team) {
+    const regexes = await buildTeamRegexes(team);
+    if (regexes.length) {
+      clauses.push({
+        $or: regexes.map((regex) => ({ team: regex })),
+      });
+    }
+  }
+
+  if (role) clauses.push({ role });
+
+  if (game) {
+    const safeGame = escapeRegex(String(game));
+    clauses.push({ game: new RegExp(`^${safeGame}$`, 'i') });
+  }
+
+  if (q) {
+    const query = String(q);
+    clauses.push({
+      $or: [
+        { name: new RegExp(query, 'i') },
+        { id: new RegExp(query, 'i') },
+      ],
+    });
+  }
+
+  const filter = clauses.length ? { $and: clauses } : {};
   const players = await PlayerModel.find(filter).sort({ name: 1 }).lean();
-  res.json(players);
+  const enriched = players.map((player) => ({
+    ...player,
+    teamId: player.teamId || slugify(player.team || ''),
+  }));
+  res.json(enriched);
 }));
 
 // GET /api/players/:id
@@ -62,3 +90,37 @@ router.delete('/:id', asyncHandler(async (req: Request, res: Response) => {
 }));
 
 export default router;
+
+async function buildTeamRegexes(teamParam: string): Promise<RegExp[]> {
+  const values = new Set<string>();
+  const raw = teamParam.trim();
+  if (!raw) return [];
+  values.add(raw);
+  values.add(slugify(raw));
+  const safe = escapeRegex(raw);
+
+  const teamDoc = await TeamModel.findOne({
+    $or: [
+      { id: raw },
+      { id: slugify(raw) },
+      { tag: raw },
+      { name: new RegExp(`^${safe}$`, 'i') },
+      { tag: new RegExp(`^${safe}$`, 'i') },
+    ],
+  }).lean();
+
+  if (teamDoc) {
+    if (teamDoc.id) values.add(teamDoc.id);
+    if (teamDoc.name) values.add(teamDoc.name);
+    const tag = ensureTeamTag(teamDoc);
+    if (tag) values.add(tag);
+  }
+
+  return Array.from(values)
+    .filter(Boolean)
+    .map((value) => new RegExp(`^${escapeRegex(value)}$`, 'i'));
+}
+
+function escapeRegex(value: string) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}

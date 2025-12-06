@@ -115,10 +115,14 @@ pre {
   flex-direction: column;
 }
 
+:root {
+  --page-panel-max: 960px;
+}
+
 .page-layout {
   flex: 1;
   display: grid;
-  grid-template-columns: minmax(120px, 1fr) minmax(0, 720px) minmax(120px, 1fr);
+  grid-template-columns: minmax(60px, 0.65fr) minmax(0, var(--page-panel-max)) minmax(60px, 0.65fr);
   gap: 0;
   align-items: stretch;
   min-height: 100vh;
@@ -127,11 +131,15 @@ pre {
 
 .page-panel {
   padding: var(--space-6, 2rem) var(--space-4, 1.5rem);
+  max-width: var(--page-panel-max);
+  width: 100%;
+  margin: 0 auto;
 }
 
 .page-panel > .container {
   padding: var(--space-4, 1.5rem);
   margin: 0 auto;
+  width: 100%;
 }
 
 .page-side {
