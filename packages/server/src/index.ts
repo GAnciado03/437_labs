@@ -3,7 +3,6 @@ import cors from "cors";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { connect } from "./services/mongo";
-import { seedFromProtoData } from "./seed";
 import players from "./routes/players";
 import teams from "./routes/teams";
 import matches from "./routes/matches";
@@ -51,12 +50,6 @@ app.listen(port, host, () => {
 });
 
 connect("437esportsdatabase");
-
-if (process.env.SEED === 'true') {
-  seedFromProtoData().then(() =>
-    console.log('Seeded from proto data')
-  ).catch(() => {});
-}
 
 // Centralized error handler (keep last)
 app.use(errorHandler);
